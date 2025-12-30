@@ -1,0 +1,5 @@
+/**
+ * イベントシステムのエクスポート
+ */
+
+export * from './historicalEvents';

@@ -1,0 +1,5 @@
+/**
+ * シミュレーションシステムのエクスポート
+ */
+
+export * from './npcSimulator';
