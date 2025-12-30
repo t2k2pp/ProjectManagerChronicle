@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM立志伝：UI モックアップ一覧</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+        }
+
+        .mockup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .mockup-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .mockup-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .mockup-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .mockup-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 8px;
+        }
+
+        .mockup-description {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .mockup-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-complete {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-planned {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .view-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+        }
+
+        .features {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-item {
+            font-size: 13px;
+            color: #94a3b8;
+            padding: 4px 0;
+        }
+
+        .feature-item::before {
+            content: "・";
+            margin-right: 4px;
+            color: #60a5fa;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">📊 PM立志伝：プロジェクト・クロニクル</div>
+            <div class="subtitle">UIモックアップ一覧</div>
+        </div>
+
+        <div class="mockup-grid">
+            <!-- Dashboard -->
+            <div class="mockup-card" onclick="window.location.href='dashboard.html'">
+                <div class="mockup-icon">🏢</div>
+                <div class="mockup-title">社長室（ダッシュボード）</div>
+                <div class="mockup-description">
+                    ゲーム全体の状況を俯瞰し、次のアクションを選択する中央管理画面
+                </div>
+                <div class="mockup-status status-complete">✅ 実装済み</div>
+                <div class="features">
+                    <div class="feature-item">現在のプロジェクト状況表示</div>
+                    <div class="feature-item">クイックアクションボタン</div>
+                    <div class="feature-item">組織状態のサマリ</div>
+                    <div class="feature-item">通知・案件パイプライン</div>
+                </div>
+                <a href="dashboard.html" class="view-btn">プレビューを見る →</a>
+            </div>
+
+            <!-- PM Cockpit -->
+            <div class="mockup-card" onclick="window.location.href='pm_cockpit.html'">
+                <div class="mockup-icon">⚙️</div>
+                <div class="mockup-title">PMコックピット（メイン画面）</div>
+                <div class="mockup-description">
+                    プロジェクトの実行・監視を行う中核画面。リソース管理とタスク進捗を可視化
+                </div>
+                <div class="mockup-status status-complete">✅ 実装済み</div>
+                <div class="features">
+                    <div class="feature-item">オフィスビュー（キャラクター管理）</div>
+                    <div class="feature-item">ガントチャート（WBS進捗）</div>
+                    <div class="feature-item">ドラッグ&ドロップによるアサイン</div>
+                    <div class="feature-item">EVM指標表示</div>
+                </div>
+                <a href="pm_cockpit.html" class="view-btn">プレビューを見る →</a>
+            </div>
+
+            <!-- Character Detail -->
+            <div class="mockup-card" onclick="window.location.href='character_detail.html'">
+                <div class="mockup-icon">👤</div>
+                <div class="mockup-title">キャラクター詳細画面</div>
+                <div class="mockup-description">
+                    社員の能力と状態を詳細に表示。ダブル・ヘキサゴンでスキルを可視化
+                </div>
+                <div class="mockup-status status-complete">✅ 実装済み</div>
+                <div class="features">
+                    <div class="feature-item">ダブル・ヘキサゴンチャート（SVG）</div>
+                    <div class="feature-item">基本情報・現在の状態</div>
+                    <div class="feature-item">特性タグ表示</div>
+                    <div class="feature-item">信頼度・二つ名システム</div>
+                </div>
+                <a href="character_detail.html" class="view-btn">プレビューを見る →</a>
+            </div>
+
+            <!-- Card Battle -->
+            <div class="mockup-card" onclick="window.location.href='card_battle.html'">
+                <div class="mockup-icon">⚔️</div>
+                <div class="mockup-title">カードバトル（交渉）画面</div>
+                <div class="mockup-description">
+                    ステークホルダーとの交渉をカードゲーム形式で表現
+                </div>
+                <div class="mockup-status status-complete">✅ 実装済み</div>
+                <div class="features">
+                    <div class="feature-item">対戦アリーナ（プレイヤーvs相手）</div>
+                    <div class="feature-item">ゲージシステム（納得・不満）</div>
+                    <div class="feature-item">5種類のカードタイプ</div>
+                    <div class="feature-item">対話ログ表示</div>
+                </div>
+                <a href="card_battle.html" class="view-btn">プレビューを見る →</a>
+            </div>
+
+            <!-- Title Screen (Planned) -->
+            <div class="mockup-card">
+                <div class="mockup-icon">🎮</div>
+                <div class="mockup-title">タイトル画面</div>
+                <div class="mockup-description">
+                    ゲームの第一印象を決定づけるエントリーポイント
+                </div>
+                <div class="mockup-status status-planned">📝 設計のみ</div>
+                <div class="features">
+                    <div class="feature-item">新規ゲーム・ロード</div>
+                    <div class="feature-item">チュートリアル・設定</div>
+                    <div class="feature-item">背景アニメーション</div>
+                </div>
+            </div>
+
+            <!-- Game Setup (Planned) -->
+            <div class="mockup-card">
+                <div class="mockup-icon">⚙️</div>
+                <div class="mockup-title">ゲーム設定画面</div>
+                <div class="mockup-description">
+                    難易度、会社規模、ドメイン、主人公の初期設定を行うウィザード
+                </div>
+                <div class="mockup-status status-planned">📝 設計のみ</div>
+                <div class="features">
+                    <div class="feature-item">4ステップ式ウィザード</div>
+                    <div class="feature-item">リアルタイムプレビュー</div>
+                    <div class="feature-item">PM適性診断</div>
+                </div>
+            </div>
+
+            <!-- Vacation Puzzle (Planned) -->
+            <div class="mockup-card">
+                <div class="mockup-icon">📅</div>
+                <div class="mockup-title">休暇調整パズル画面</div>
+                <div class="mockup-description">
+                    長期休暇期間のリソース配分をパズルゲームとして表現
+                </div>
+                <div class="mockup-status status-planned">📝 設計のみ</div>
+                <div class="features">
+                    <div class="feature-item">カレンダーグリッド</div>
+                    <div class="feature-item">交渉システム</div>
+                    <div class="feature-item">制約条件の可視化</div>
+                </div>
+            </div>
+
+            <!-- Report Screen (Planned) -->
+            <div class="mockup-card">
+                <div class="mockup-icon">📈</div>
+                <div class="mockup-title">振り返りレポート画面</div>
+                <div class="mockup-description">
+                    AI生成された学習レポートを表示し、プレイヤーの成長を促進
+                </div>
+                <div class="mockup-status status-planned">📝 設計のみ</div>
+                <div class="features">
+                    <div class="feature-item">PMスタイル分析</div>
+                    <div class="feature-item">重要な決断の評価</div>
+                    <div class="feature-item">用語解説・KPT分析</div>
+                </div>
+            </div>
+        </div>
+
+        <div
+            style="margin-top: 48px; padding: 24px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3);">
+            <div style="font-size: 18px; font-weight: bold; color: #60a5fa; margin-bottom: 12px;">
+                📢 モックアップ情報
+            </div>
+            <div style="font-size: 14px; color: #cbd5e1; line-height: 1.8;">
+                <p>✅ <strong>実装済み</strong>: HTML/CSS/JavaScriptで動作するプロトタイプを作成済み</p>
+                <p>📝 <strong>設計のみ</strong>: UI設計書にレイアウト仕様を記載済み（HTMLプロトタイプは未作成）</p>
+                <p style="margin-top: 12px;">
+                    すべてのモックアップは実際のReact実装時の参考として使用されます。
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

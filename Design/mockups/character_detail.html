@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM立志伝：キャラクター詳細</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .character-modal {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .char-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .char-avatar-large {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .char-name-large {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #ef4444;
+            transform: scale(1.2);
+        }
+
+        .modal-content {
+            padding: 32px;
+        }
+
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .info-card-title {
+            font-size: 14px;
+            color: #60a5fa;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .info-value {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .status-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .hp-fill {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+        }
+
+        .morale-fill {
+            background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+        }
+
+        /* Hexagon Charts */
+        .hexagon-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .hexagon-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .hexagon-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .hexagon-chart {
+            position: relative;
+            width: 340px;
+            height: 340px;
+        }
+
+        .chart-label {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .label-blue {
+            color: #3b82f6;
+        }
+
+        .label-red {
+            color: #ef4444;
+        }
+
+        /* Traits */
+        .traits-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 16px;
+        }
+
+        .trait-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .trait-tag {
+            padding: 8px 16px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Trust */
+        .trust-section {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+            border: 2px solid rgba(139, 92, 246, 0.4);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .trust-progress {
+            width: 100%;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        .trust-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 50%, #c4b5fd 100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .mystery-name {
+            text-align: center;
+            font-size: 18px;
+            color: #a78bfa;
+            font-style: italic;
+            margin-top: 12px;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="modal-overlay">
+        <div class="character-modal">
+            <div class="modal-header">
+                <div class="char-title">
+                    <div class="char-avatar-large">👤</div>
+                    <div>
+                        <div class="char-name-large">佐藤 太郎</div>
+                        <div style="color: #94a3b8; font-size: 14px; margin-top: 4px;">エンジニア上がり</div>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="alert('閉じる')">✕</button>
+            </div>
+
+            <div class="modal-content">
+                <!-- Info Grid -->
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-title">基本情報</div>
+                        <div class="info-item">
+                            <span class="info-label">年齢</span>
+                            <span class="info-value">28歳</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">性別</span>
+                            <span class="info-value">男性</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">職種</span>
+                            <span class="info-value">エンジニア上がり</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">勤続</span>
+                            <span class="info-value">3年</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">現在の状態</div>
+                        <div class="info-item">
+                            <span class="info-label">体力</span>
+                            <span class="info-value" style="color: #10b981;">80/100 😊</span>
+                        </div>
+                        <div class="status-bar">
+                            <div class="status-fill hp-fill" style="width: 80%"></div>
+                        </div>
+                        <div class="info-item" style="margin-top: 12px;">
+                            <span class="info-label">士気</span>
+                            <span class="info-value" style="color: #3b82f6;">75/100</span>
+                        </div>
+                        <div class="status-bar">
+                            <div class="status-fill morale-fill" style="width: 75%"></div>
+                        </div>
+                        <div class="info-item" style="margin-top: 12px;">
+                            <span class="info-label">現在のアサイン</span>
+                            <span class="info-value">ECサイト刷新</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hexagon Charts -->
+                <div class="hexagon-section">
+                    <div class="hexagon-title">ダブル・ヘキサゴン スキルチャート</div>
+                    <div class="hexagon-container">
+                        <!-- Blue Hexagon (Project Skills) -->
+                        <div>
+                            <div class="chart-label label-blue">🔵 プロジェクトスキル</div>
+                            <div class="hexagon-chart">
+                                <svg width="340" height="340" viewBox="0 0 340 340">
+                                    <!-- Grid circles -->
+                                    <circle cx="170" cy="170" r="150" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+                                    <circle cx="170" cy="170" r="120" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+                                    <circle cx="170" cy="170" r="90" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+                                    <circle cx="170" cy="170" r="60" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+                                    <circle cx="170" cy="170" r="30" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+
+                                    <!-- Data hexagon (values: 7,9,7,5,6,8) -->
+                                    <polygon points="170,65 252,120 252,220 170,275 88,220 88,120"
+                                        fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" stroke-width="3" />
+
+                                    <!-- Labels -->
+                                    <text x="170" y="45" text-anchor="middle" fill="#60a5fa" font-size="12"
+                                        font-weight="bold">設計(7)</text>
+                                    <text x="270" y="115" text-anchor="start" fill="#60a5fa" font-size="12"
+                                        font-weight="bold">製造(9)</text>
+                                    <text x="270" y="225" text-anchor="start" fill="#60a5fa" font-size="12"
+                                        font-weight="bold">評価(7)</text>
+                                    <text x="170" y="305" text-anchor="middle" fill="#60a5fa" font-size="12"
+                                        font-weight="bold">折衝(5)</text>
+                                    <text x="70" y="225" text-anchor="end" fill="#60a5fa" font-size="12"
+                                        font-weight="bold">提案(6)</text>
+                                    <text x="70" y="115" text-anchor="end" fill="#60a5fa" font-size="12"
+                                        font-weight="bold">判断(8)</text>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Red Hexagon (Team Skills) -->
+                        <div>
+                            <div class="chart-label label-red">🔴 チーム運営能力</div>
+                            <div class="hexagon-chart">
+                                <svg width="340" height="340" viewBox="0 0 340 340">
+                                    <!-- Grid circles -->
+                                    <circle cx="170" cy="170" r="150" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+                                    <circle cx="170" cy="170" r="120" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+                                    <circle cx="170" cy="170" r="90" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+                                    <circle cx="170" cy="170" r="60" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+                                    <circle cx="170" cy="170" r="30" fill="none" stroke="rgba(255,255,255,0.05)"
+                                        stroke-width="1" />
+
+                                    <!-- Data hexagon (values: 4,8,6,9,5,3) -->
+                                    <polygon points="170,110 218,143 218,197 170,230 122,197 122,143"
+                                        fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" stroke-width="3" />
+
+                                    <!-- Labels -->
+                                    <text x="170" y="45" text-anchor="middle" fill="#f87171" font-size="12"
+                                        font-weight="bold">庶務(4)</text>
+                                    <text x="270" y="115" text-anchor="start" fill="#f87171" font-size="12"
+                                        font-weight="bold">幹事(8)</text>
+                                    <text x="270" y="225" text-anchor="start" fill="#f87171" font-size="12"
+                                        font-weight="bold">給仕(6)</text>
+                                    <text x="170" y="305" text-anchor="middle" fill="#f87171" font-size="12"
+                                        font-weight="bold">雑談(9)</text>
+                                    <text x="70" y="225" text-anchor="end" fill="#f87171" font-size="12"
+                                        font-weight="bold">美貌(5)</text>
+                                    <text x="70" y="115" text-anchor="end" fill="#f87171" font-size="12"
+                                        font-weight="bold">幸運(3)</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Traits -->
+                <div class="traits-section">
+                    <div class="section-title">🏷️ 特性</div>
+                    <div class="trait-tags">
+                        <div class="trait-tag">
+                            <span>⚡</span>
+                            <span><strong>瞬発型（20代）</strong> - 回復力が高い</span>
+                        </div>
+                        <div class="trait-tag">
+                            <span>🌙</span>
+                            <span><strong>夜型</strong> - 夜間の作業効率+20%</span>
+                        </div>
+                        <div class="trait-tag">
+                            <span>💰</span>
+                            <span><strong>報酬重視</strong> - 金銭で休日出勤可能</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trust Level -->
+                <div class="trust-section">
+                    <div class="section-title">✨ 信頼度</div>
+                    <div class="trust-progress">
+                        <div class="trust-fill" style="width: 80%"></div>
+                    </div>
+                    <div style="text-align: center; font-size: 18px; font-weight: bold; color: #a78bfa;">
+                        80/100
+                    </div>
+                    <div style="text-align: center; font-size: 14px; color: #cbd5e1; margin-top: 8px;">
+                        あと20ポイントで二つ名が開眼します！
+                    </div>
+                    <div class="mystery-name">
+                        ❓ ？？？の？？？ （隠された真名）
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

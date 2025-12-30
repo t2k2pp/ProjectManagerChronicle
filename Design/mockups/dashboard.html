@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM立志伝：社長室（ダッシュボード）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .info-item .icon {
+            font-size: 20px;
+        }
+
+        .settings-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .settings-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Cards Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .project-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-icon {
+            font-size: 20px;
+        }
+
+        .status-good { color: #10b981; }
+        .status-warning { color: #f59e0b; }
+        .status-danger { color: #ef4444; }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            transition: width 0.3s;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Org Stats */
+        .org-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 16px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* Notifications */
+        .notification {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .notification.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+        }
+
+        .notification.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+
+        .notification.info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+        }
+
+        /* Pipeline */
+        .pipeline-full {
+            grid-column: 1 / -1;
+        }
+
+        .pipeline-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+        }
+
+        .pipeline-item {
+            text-align: center;
+        }
+
+        .pipeline-count {
+            font-size: 36px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .pipeline-label {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .detail-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+
+        .detail-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">📊 PM立志伝：プロジェクト・クロニクル</div>
+            <div class="header-info">
+                <div class="info-item">
+                    <span class="icon">📅</span>
+                    <span>2025年4月 第1週</span>
+                </div>
+                <div class="info-item">
+                    <span class="icon">💰</span>
+                    <span>¥50,000,000</span>
+                </div>
+                <button class="settings-btn">⚙️ 設定</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Current Project Card -->
+            <div class="card">
+                <div class="card-title">📊 現在のプロジェクト</div>
+                <div class="project-name">ECサイト刷新</div>
+                
+                <div class="metric">
+                    <span class="metric-label">進捗</span>
+                    <span class="metric-value">45% <span class="status-warning">(予定50%)</span></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 45%"></div>
+                </div>
+
+                <div class="metric">
+                    <span class="metric-label">SPI（スケジュール効率）</span>
+                    <span class="metric-value status-warning">
+                        0.90 <span class="status-icon">⚠️</span>
+                    </span>
+                </div>
+
+                <div class="metric">
+                    <span class="metric-label">CPI（コスト効率）</span>
+                    <span class="metric-value status-good">
+                        1.05 <span class="status-icon">✅</span>
+                    </span>
+                </div>
+
+                <button class="detail-btn">詳細を見る →</button>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="card">
+                <div class="card-title">⚡ クイックアクション</div>
+                <div class="action-buttons">
+                    <button class="action-btn">🔍 新規案件を探す</button>
+                    <button class="action-btn">👥 社員名簿を見る</button>
+                    <button class="action-btn">📈 市場調査レポート</button>
+                </div>
+            </div>
+
+            <!-- Organization Status Card -->
+            <div class="card">
+                <div class="card-title">🏢 組織状態</div>
+                <div class="org-stats">
+                    <div class="stat-box">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">社員数</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">85%</div>
+                        <div class="stat-label">稼働率</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">72</div>
+                        <div class="stat-label">平均士気</div>
+                    </div>
+                </div>
+                <div class="progress-bar" style="margin-top: 16px;">
+                    <div class="progress-fill status-good" style="width: 72%; background: linear-gradient(90deg, #10b981 0%, #34d399 100%);"></div>
+                </div>
+            </div>
+
+            <!-- Notifications Card -->
+            <div class="card">
+                <div class="card-title">🔔 今週の通知</div>
+                <div class="notification warning">
+                    <span>⚠️</span>
+                    <span>GW休暇調整の期限が近づいています</span>
+                </div>
+                <div class="notification success">
+                    <span>✅</span>
+                    <span>佐藤さんがLv5に成長しました</span>
+                </div>
+                <div class="notification info">
+                    <span>📅</span>
+                    <span>月次報告会は明日です</span>
+                </div>
+            </div>
+
+            <!-- Project Pipeline Card (Full Width) -->
+            <div class="card pipeline-full">
+                <div class="card-title">📋 案件パイプライン</div>
+                <div class="pipeline-stats">
+                    <div class="pipeline-item">
+                        <div class="pipeline-count">3</div>
+                        <div class="pipeline-label">見込み客</div>
+                    </div>
+                    <div class="pipeline-item">
+                        <div class="pipeline-count">2</div>
+                        <div class="pipeline-label">提案中</div>
+                    </div>
+                    <div class="pipeline-item">
+                        <div class="pipeline-count">1</div>
+                        <div class="pipeline-label">受注確定</div>
+                    </div>
+                </div>
+                <button class="detail-btn">詳細を見る →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple hover effects and interactions
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
