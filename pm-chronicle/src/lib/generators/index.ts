@@ -7,3 +7,5 @@ export { generateJapaneseName, generateJapaneseNames, type Gender } from './name
 export { generateCompany, generateCompanies } from './companyGenerator';
 export { generateNPC, generateNPCs } from './characterGenerator';
 export { generateWorld, generateWorld as generateInitialWorld, createPlayerCharacter, type WorldGenerationOptions, type PlayerSetupOptions } from './worldGenerator';
+export { generateInitialRelationships, updateRelationshipStrength, developFriendship } from './relationshipGenerator';
+
