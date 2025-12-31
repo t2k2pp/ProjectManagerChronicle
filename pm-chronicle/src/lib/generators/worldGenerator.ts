@@ -99,9 +99,9 @@ export interface PlayerSetupOptions {
 
 /** プレイヤーNPCを作成 */
 export function createPlayerCharacter(
-    options: PlayerSetupOptions,
-    worldState: WorldState
-): string {
+    worldState: WorldState,
+    options: PlayerSetupOptions
+): import('../../types').Character {
     const playerId = uuidv4();
     const currentYear = worldState.currentYear;
 
@@ -133,16 +133,16 @@ export function createPlayerCharacter(
         });
     }
 
-    const playerCharacter = {
+    const playerCharacter: import('../../types').Character = {
         id: playerId,
         name: options.name,
         birthYear,
         gender: options.gender,
-        status: options.startType === 'FREELANCE' ? 'FREELANCE' as const : 'EMPLOYED' as const,
+        status: options.startType === 'FREELANCE' ? 'FREELANCE' : 'EMPLOYED',
         companyId: options.companyId,
         position: {
-            title: options.startType === 'FRESH_GRADUATE' ? 'NEWCOMER' as const :
-                options.startType === 'MID_CAREER' ? 'SENIOR' as const : 'MEMBER' as const,
+            title: options.startType === 'FRESH_GRADUATE' ? 'NEWCOMER' :
+                options.startType === 'MID_CAREER' ? 'SENIOR' : 'MEMBER',
             rank: options.startType === 'FRESH_GRADUATE' ? 1 :
                 options.startType === 'MID_CAREER' ? 3 : 2,
         },
@@ -159,16 +159,10 @@ export function createPlayerCharacter(
         loyalty: 50,
         ambition: 50,
         relationships: [],
-        marriageStatus: 'SINGLE' as const,
+        marriageStatus: 'SINGLE',
         childCount: 0,
     };
 
-    // ワールドに追加
-    if (playerCharacter.status === 'FREELANCE') {
-        worldState.freelancers.push(playerCharacter);
-    } else {
-        worldState.npcs.push(playerCharacter);
-    }
-
-    return playerId;
+    return playerCharacter;
 }
+

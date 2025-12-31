@@ -6,4 +6,4 @@ export { generateCompanyName, generateCompanyNames } from './companyNameGenerato
 export { generateJapaneseName, generateJapaneseNames, type Gender } from './nameGenerator';
 export { generateCompany, generateCompanies } from './companyGenerator';
 export { generateNPC, generateNPCs } from './characterGenerator';
-export { generateWorld, createPlayerCharacter, type WorldGenerationOptions, type PlayerSetupOptions } from './worldGenerator';
+export { generateWorld, generateWorld as generateInitialWorld, createPlayerCharacter, type WorldGenerationOptions, type PlayerSetupOptions } from './worldGenerator';
