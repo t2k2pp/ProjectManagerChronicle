@@ -1,0 +1,30 @@
+{
+    "name": "PM Chronicle",
+    "short_name": "PM立志伝",
+    "description": "プロジェクトマネージャー育成シミュレーションゲーム",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1a1a2e",
+    "theme_color": "#3b82f6",
+    "orientation": "landscape",
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "games",
+        "education"
+    ],
+    "lang": "ja",
+    "dir": "ltr"
+}
