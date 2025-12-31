@@ -7,3 +7,5 @@ export { Card, CardHeader, CardBody, CardFooter } from './Card';
 export { Badge } from './Badge';
 export { HexagonChart, MiniHexagonChart } from './HexagonChart';
 export { ProgressBar, StaminaBar } from './ProgressBar';
+export { Modal, ConfirmDialog } from './Modal';
+
