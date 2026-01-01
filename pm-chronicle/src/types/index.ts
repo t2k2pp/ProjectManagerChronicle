@@ -195,6 +195,10 @@ export interface Task {
     riskFactor: number;
     dependencies: string[];
     isCriticalPath: boolean;
+    // スケジュール情報
+    startWeek: number;
+    endWeek: number;
+    estimatedWeeks: number;
 }
 
 // ========================

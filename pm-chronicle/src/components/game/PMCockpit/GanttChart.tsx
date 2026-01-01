@@ -64,9 +64,11 @@ export function GanttChart({
 
             {/* タスク行 */}
             {tasks.map(task => {
-                const startWeek = 1; // 仮の開始週（タスク依存関係から計算すべき）
-                const duration = 4;  // 仮の期間
-                const leftPercent = ((startWeek - 1) / totalWeeks) * 100;
+                // タスクのスケジュールを使用（デフォルト値付き）
+                const taskStartWeek = task.startWeek ?? 1;
+                const taskEndWeek = task.endWeek ?? (taskStartWeek + (task.estimatedWeeks ?? 4));
+                const duration = taskEndWeek - taskStartWeek + 1;
+                const leftPercent = ((taskStartWeek - 1) / totalWeeks) * 100;
                 const widthPercent = (duration / totalWeeks) * 100;
 
                 return (

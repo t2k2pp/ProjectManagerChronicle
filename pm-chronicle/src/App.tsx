@@ -110,7 +110,7 @@ function App() {
             playerCompany={playerCompany}
             activeProject={currentProject}
             onStartProject={() => {
-              // 仮のプロジェクト作成
+              // 仮のプロジェクト作成（ウォーターフォール型スケジュール）
               const mockProject: Project = {
                 id: 'proj-1',
                 name: 'ERPシステム刷新',
@@ -122,13 +122,14 @@ function App() {
               };
               setCurrentProject(mockProject);
 
-              // 仮のタスク
+              // リアルなウォーターフォールスケジュール
+              // 要件定義(1-4週) → 基本設計(5-8週) → 詳細設計(9-11週) → 開発(12-17週) → テスト(18-20週)
               setCurrentTasks([
-                { id: 't1', projectId: 'proj-1', name: '要件定義', assigneeId: null, phase: 'REQUIREMENT', progress: 0, quality: 80, riskFactor: 20, dependencies: [], isCriticalPath: true },
-                { id: 't2', projectId: 'proj-1', name: '基本設計', assigneeId: null, phase: 'DESIGN', progress: 0, quality: 80, riskFactor: 30, dependencies: ['t1'], isCriticalPath: true },
-                { id: 't3', projectId: 'proj-1', name: '詳細設計', assigneeId: null, phase: 'DESIGN', progress: 0, quality: 80, riskFactor: 25, dependencies: ['t2'], isCriticalPath: false },
-                { id: 't4', projectId: 'proj-1', name: '開発', assigneeId: null, phase: 'DEVELOP', progress: 0, quality: 80, riskFactor: 40, dependencies: ['t3'], isCriticalPath: true },
-                { id: 't5', projectId: 'proj-1', name: 'テスト', assigneeId: null, phase: 'TEST', progress: 0, quality: 80, riskFactor: 35, dependencies: ['t4'], isCriticalPath: true },
+                { id: 't1', projectId: 'proj-1', name: '要件定義', assigneeId: null, phase: 'REQUIREMENT', progress: 0, quality: 80, riskFactor: 20, dependencies: [], isCriticalPath: true, startWeek: 1, endWeek: 4, estimatedWeeks: 4 },
+                { id: 't2', projectId: 'proj-1', name: '基本設計', assigneeId: null, phase: 'DESIGN', progress: 0, quality: 80, riskFactor: 30, dependencies: ['t1'], isCriticalPath: true, startWeek: 5, endWeek: 8, estimatedWeeks: 4 },
+                { id: 't3', projectId: 'proj-1', name: '詳細設計', assigneeId: null, phase: 'DESIGN', progress: 0, quality: 80, riskFactor: 25, dependencies: ['t2'], isCriticalPath: false, startWeek: 9, endWeek: 11, estimatedWeeks: 3 },
+                { id: 't4', projectId: 'proj-1', name: '開発', assigneeId: null, phase: 'DEVELOP', progress: 0, quality: 80, riskFactor: 40, dependencies: ['t3'], isCriticalPath: true, startWeek: 12, endWeek: 17, estimatedWeeks: 6 },
+                { id: 't5', projectId: 'proj-1', name: 'テスト', assigneeId: null, phase: 'TEST', progress: 0, quality: 80, riskFactor: 35, dependencies: ['t4'], isCriticalPath: true, startWeek: 18, endWeek: 20, estimatedWeeks: 3 },
               ]);
 
               // チームメンバー（NPCから選択）

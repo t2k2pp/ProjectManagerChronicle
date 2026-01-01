@@ -111,14 +111,26 @@ function generateTasksForTemplate(
 ): Task[] {
     const tasks: Task[] = [];
     const phases: Task['phase'][] = ['REQUIREMENT', 'DESIGN', 'DEVELOP', 'TEST'];
-    const phaseDuration = Math.ceil(template.taskCount / phases.length);
+
+    // 各フェーズの期間配分（ウォーターフォール型）
+    // 要件20%, 設計25%, 開発40%, テスト15%
+    const phaseRatios = [0.20, 0.25, 0.40, 0.15];
+    const phaseDurations = phaseRatios.map(r => Math.max(1, Math.round(template.duration * r)));
+
+    let currentStartWeek = 1;
 
     phases.forEach((phase, phaseIndex) => {
-        const taskCount = phaseIndex === phases.length - 1
-            ? template.taskCount - (phaseDuration * (phases.length - 1))
-            : phaseDuration;
+        const phaseWeeks = phaseDurations[phaseIndex];
+        const taskCountForPhase = Math.ceil(template.taskCount / phases.length);
+        const actualTaskCount = phaseIndex === phases.length - 1
+            ? Math.max(1, template.taskCount - (taskCountForPhase * (phases.length - 1)))
+            : taskCountForPhase;
 
-        for (let i = 0; i < taskCount; i++) {
+        for (let i = 0; i < actualTaskCount; i++) {
+            const taskDuration = Math.ceil(phaseWeeks / actualTaskCount);
+            const taskStart = currentStartWeek + (i * taskDuration);
+            const taskEnd = Math.min(taskStart + taskDuration - 1, currentStartWeek + phaseWeeks - 1);
+
             tasks.push({
                 id: uuid(),
                 projectId,
@@ -131,9 +143,14 @@ function generateTasksForTemplate(
                 dependencies: phaseIndex > 0 && i === 0
                     ? [tasks[tasks.length - 1]?.id].filter(Boolean)
                     : [],
-                isCriticalPath: i === 0, // 各フェーズ最初のタスクはクリティカルパス
+                isCriticalPath: i === 0,
+                startWeek: taskStart,
+                endWeek: taskEnd,
+                estimatedWeeks: taskEnd - taskStart + 1,
             });
         }
+
+        currentStartWeek += phaseWeeks;
     });
 
     return tasks;
