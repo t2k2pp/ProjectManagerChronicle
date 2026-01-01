@@ -98,6 +98,11 @@ export interface Character {
         trueStats: Partial<StatsBlue & StatsRed>;
         backstory: string;
     };
+
+    // 経済
+    money: number; // 所持金（万円）
+    monthlySalary?: number; // 月収（計算値、万円）
+    certifications: string[]; // 取得資格
 }
 
 // ========================

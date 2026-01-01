@@ -219,6 +219,8 @@ export function generateNPC(
         relationships: [],
         marriageStatus,
         childCount: marriageStatus === 'MARRIED' ? randomInt(0, 2, random) : 0,
+        money: 0, // 初期所持金
+        certifications: [], // 初期資格なし
     };
 }
 

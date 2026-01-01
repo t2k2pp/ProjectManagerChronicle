@@ -161,6 +161,8 @@ export function createPlayerCharacter(
         relationships: [],
         marriageStatus: 'SINGLE',
         childCount: 0,
+        money: 50, // 初期所持金（新卒の貯金）
+        certifications: [], // 初期資格なし
     };
 
     return playerCharacter;
