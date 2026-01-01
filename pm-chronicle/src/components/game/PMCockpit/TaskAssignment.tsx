@@ -8,20 +8,14 @@ import {
     DndContext,
     DragOverlay,
     closestCenter,
-    KeyboardSensor,
     PointerSensor,
     useSensor,
     useSensors,
+    useDraggable,
+    useDroppable,
     type DragEndEvent,
     type DragStartEvent,
 } from '@dnd-kit/core';
-import {
-    SortableContext,
-    sortableKeyboardCoordinates,
-    useSortable,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import type { Character, Task } from '../../../types';
 import { CharacterCard } from './CharacterCard';
 
@@ -39,14 +33,17 @@ function DraggableCharacter({ character }: { character: Character }) {
         listeners,
         setNodeRef,
         transform,
-        transition,
         isDragging,
-    } = useSortable({ id: character.id });
+    } = useDraggable({
+        id: character.id,
+    });
 
     const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
+        transform: transform
+            ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+            : undefined,
         opacity: isDragging ? 0.5 : 1,
+        cursor: 'grab',
     };
 
     return (
@@ -66,6 +63,10 @@ function TaskDropZone({
     assignedCharacter?: Character;
     onUnassign: () => void;
 }) {
+    const { isOver, setNodeRef } = useDroppable({
+        id: task.id,
+    });
+
     const PHASE_NAMES: Record<string, string> = {
         REQUIREMENT: '要件定義',
         DESIGN: '設計',
@@ -74,13 +75,21 @@ function TaskDropZone({
     };
 
     return (
-        <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+        <div
+            ref={setNodeRef}
+            className={`bg-gray-800 rounded-lg p-3 border transition-colors ${isOver
+                    ? 'border-blue-500 bg-blue-500/10'
+                    : 'border-gray-700'
+                }`}
+        >
             <div className="flex justify-between items-start mb-2">
                 <div>
                     <div className="text-sm font-medium text-white">
                         {task.name || PHASE_NAMES[task.phase] || task.phase}
                     </div>
-                    <div className="text-xs text-gray-400">進捗: {task.progress}%</div>
+                    <div className="text-xs text-gray-400">
+                        進捗: {task.progress}% | 週{task.startWeek ?? '?'}-{task.endWeek ?? '?'}
+                    </div>
                 </div>
                 <span className="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-300">
                     {PHASE_NAMES[task.phase]}
@@ -102,8 +111,13 @@ function TaskDropZone({
                     </button>
                 </div>
             ) : (
-                <div className="border-2 border-dashed border-gray-600 rounded-lg p-3 text-center text-gray-500 text-sm">
-                    ここにドロップ
+                <div
+                    className={`border-2 border-dashed rounded-lg p-3 text-center text-sm transition-colors ${isOver
+                            ? 'border-blue-500 text-blue-400 bg-blue-500/10'
+                            : 'border-gray-600 text-gray-500'
+                        }`}
+                >
+                    {isOver ? 'ここにドロップ！' : 'メンバーをドラッグ'}
                 </div>
             )}
         </div>
@@ -118,10 +132,12 @@ export function TaskAssignmentPanel({
 }: TaskAssignmentPanelProps) {
     const [activeId, setActiveId] = useState<string | null>(null);
 
+    // ポインターセンサー（距離5px以上でドラッグ開始）
     const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
         })
     );
 
@@ -143,10 +159,10 @@ export function TaskAssignmentPanel({
         const { active, over } = event;
         setActiveId(null);
 
-        if (over && active.id !== over.id) {
+        if (over) {
             // タスクへのドロップを検出
             const targetTask = tasks.find(t => t.id === over.id);
-            if (targetTask) {
+            if (targetTask && !targetTask.assigneeId) {
                 onAssign(targetTask.id, active.id as string);
             }
         }
@@ -165,16 +181,11 @@ export function TaskAssignmentPanel({
                     <h3 className="text-sm font-medium text-gray-400 mb-2">
                         利用可能メンバー ({availableCharacters.length})
                     </h3>
-                    <SortableContext
-                        items={availableCharacters.map(c => c.id)}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                            {availableCharacters.map(character => (
-                                <DraggableCharacter key={character.id} character={character} />
-                            ))}
-                        </div>
-                    </SortableContext>
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                        {availableCharacters.map(character => (
+                            <DraggableCharacter key={character.id} character={character} />
+                        ))}
+                    </div>
                     {availableCharacters.length === 0 && (
                         <div className="text-center text-gray-500 py-4">
                             全員アサイン済み
@@ -206,7 +217,9 @@ export function TaskAssignmentPanel({
             {/* ドラッグオーバーレイ */}
             <DragOverlay>
                 {activeCharacter ? (
-                    <CharacterCard character={activeCharacter} compact />
+                    <div className="opacity-80">
+                        <CharacterCard character={activeCharacter} compact />
+                    </div>
                 ) : null}
             </DragOverlay>
         </DndContext>
