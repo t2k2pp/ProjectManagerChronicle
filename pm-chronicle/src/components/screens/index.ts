@@ -8,5 +8,6 @@ export { DashboardScreen } from './DashboardScreen';
 export { PMCockpitScreen } from './PMCockpitScreen';
 export { CharacterListScreen } from './CharacterListScreen';
 export { ReportScreen } from './ReportScreen';
+export { IndustryMapScreen } from './IndustryMapScreen';
 
 

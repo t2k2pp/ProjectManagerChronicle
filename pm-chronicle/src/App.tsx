@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { useGameStore, getPlayerCharacter, getPlayerCompany } from './store/gameStore';
-import { TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen, type GameStartOptions } from './components/screens';
+import { TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen, IndustryMapScreen, type GameStartOptions } from './components/screens';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
 import type { Project, Task, Character } from './types';
 import './index.css';
@@ -191,18 +191,12 @@ function App() {
 
       case 'INDUSTRY_MAP':
         return (
-          <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-            <div className="text-center text-white">
-              <h1 className="text-3xl font-bold mb-4">業界マップ</h1>
-              <p className="text-gray-400 mb-6">Coming Soon...</p>
-              <button
-                onClick={() => setPhase('DASHBOARD')}
-                className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700"
-              >
-                戻る
-              </button>
-            </div>
-          </div>
+          <IndustryMapScreen
+            companies={worldState?.companies || []}
+            npcs={[...(worldState?.npcs || []), ...(worldState?.freelancers || [])]}
+            currentYear={worldState?.currentYear || 2020}
+            onBack={() => setPhase('DASHBOARD')}
+          />
         );
 
       default:
