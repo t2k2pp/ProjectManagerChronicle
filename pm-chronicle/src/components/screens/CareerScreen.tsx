@@ -6,22 +6,40 @@
 import { useState } from 'react';
 import { Button, Card, Badge } from '../common';
 import { HexagonChart } from '../common/HexagonChart';
-import type { Character } from '../../types';
+import type { Character, StatsBlue, StatsRed } from '../../types';
 
 interface CareerScreenProps {
     player: Character | null;
     currentYear: number;
     onBack: () => void;
-    onTraining?: (skillType: string) => void;
 }
+
+// スキル名の日本語マッピング
+const SKILL_LABELS_BLUE: Record<keyof StatsBlue, string> = {
+    design: '設計',
+    develop: '製造',
+    test: '評価',
+    negotiation: '折衝',
+    propose: '提案',
+    judgment: '判断',
+};
+
+const SKILL_LABELS_RED: Record<keyof StatsRed, string> = {
+    admin: '事務',
+    organizer: '幹事',
+    service: '奉仕',
+    chat: '話術',
+    charm: '魅力',
+    luck: '運',
+};
 
 export function CareerScreen({
     player,
     currentYear,
     onBack,
-    onTraining,
 }: CareerScreenProps) {
     const [activeTab, setActiveTab] = useState<'status' | 'skills' | 'history'>('status');
+    const [skillViewMode, setSkillViewMode] = useState<'chart' | 'bar'>('chart');
 
     if (!player) {
         return (
@@ -133,49 +151,87 @@ export function CareerScreen({
 
                     {activeTab === 'skills' && (
                         <div className="space-y-6">
-                            {/* 技術スキル */}
-                            <Card variant="glass" padding="md">
-                                <h2 className="text-lg font-bold text-white mb-4">🔷 技術スキル（Blue）</h2>
-                                <div className="space-y-3">
-                                    {Object.entries(player.statsBlue).map(([key, value]) => (
-                                        <div key={key} className="flex items-center gap-4">
-                                            <div className="w-24 text-sm text-gray-400 capitalize">{key}</div>
-                                            <div className="flex-1 h-3 bg-gray-700 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-blue-500 transition-all"
-                                                    style={{ width: `${(value / 100) * 100}%` }}
-                                                />
-                                            </div>
-                                            <div className="w-12 text-right text-white font-mono">{value}</div>
-                                            <Button size="sm" variant="ghost" onClick={() => onTraining?.(key)}>
-                                                訓練
-                                            </Button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </Card>
+                            {/* 表示切替 */}
+                            <div className="flex gap-2">
+                                <Button
+                                    variant={skillViewMode === 'chart' ? 'primary' : 'ghost'}
+                                    size="sm"
+                                    onClick={() => setSkillViewMode('chart')}
+                                >
+                                    📊 チャート表示
+                                </Button>
+                                <Button
+                                    variant={skillViewMode === 'bar' ? 'primary' : 'ghost'}
+                                    size="sm"
+                                    onClick={() => setSkillViewMode('bar')}
+                                >
+                                    📈 バー表示
+                                </Button>
+                            </div>
 
-                            {/* 対人スキル */}
-                            <Card variant="glass" padding="md">
-                                <h2 className="text-lg font-bold text-white mb-4">🔶 対人スキル（Red）</h2>
-                                <div className="space-y-3">
-                                    {Object.entries(player.statsRed).map(([key, value]) => (
-                                        <div key={key} className="flex items-center gap-4">
-                                            <div className="w-24 text-sm text-gray-400 capitalize">{key}</div>
-                                            <div className="flex-1 h-3 bg-gray-700 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-red-500 transition-all"
-                                                    style={{ width: `${(value / 100) * 100}%` }}
-                                                />
+                            {skillViewMode === 'chart' ? (
+                                /* チャート表示 */
+                                <Card variant="glass" padding="md">
+                                    <h2 className="text-lg font-bold text-white mb-4 text-center">能力チャート</h2>
+                                    <div className="flex justify-center">
+                                        <HexagonChart
+                                            statsBlue={player.statsBlue}
+                                            statsRed={player.statsRed}
+                                            size={280}
+                                            showLabels={true}
+                                        />
+                                    </div>
+                                    <div className="mt-4 text-center text-sm">
+                                        <span className="text-blue-400 mr-4">🔷 技術: {totalBlueSkills}pt</span>
+                                        <span className="text-red-400">🔶 対人: {totalRedSkills}pt</span>
+                                    </div>
+                                </Card>
+                            ) : (
+                                /* バー表示（2列並び） */
+                                <Card variant="glass" padding="md">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* 技術スキル */}
+                                        <div>
+                                            <h3 className="text-md font-bold text-white mb-3">🔷 技術（Blue）</h3>
+                                            <div className="space-y-2">
+                                                {(Object.entries(player.statsBlue) as [keyof StatsBlue, number][]).map(([key, value]) => (
+                                                    <div key={key} className="flex items-center gap-2">
+                                                        <div className="w-12 text-xs text-gray-300">{SKILL_LABELS_BLUE[key]}</div>
+                                                        <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-blue-500"
+                                                                style={{ width: `${value}%` }}
+                                                            />
+                                                        </div>
+                                                        <div className="w-8 text-right text-white text-xs font-mono">{value}</div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                            <div className="w-12 text-right text-white font-mono">{value}</div>
-                                            <Button size="sm" variant="ghost" onClick={() => onTraining?.(key)}>
-                                                訓練
-                                            </Button>
+                                            <div className="mt-2 text-xs text-blue-400 text-right">計: {totalBlueSkills}pt</div>
                                         </div>
-                                    ))}
-                                </div>
-                            </Card>
+
+                                        {/* 対人スキル */}
+                                        <div>
+                                            <h3 className="text-md font-bold text-white mb-3">🔶 対人（Red）</h3>
+                                            <div className="space-y-2">
+                                                {(Object.entries(player.statsRed) as [keyof StatsRed, number][]).map(([key, value]) => (
+                                                    <div key={key} className="flex items-center gap-2">
+                                                        <div className="w-12 text-xs text-gray-300">{SKILL_LABELS_RED[key]}</div>
+                                                        <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-red-500"
+                                                                style={{ width: `${value}%` }}
+                                                            />
+                                                        </div>
+                                                        <div className="w-8 text-right text-white text-xs font-mono">{value}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="mt-2 text-xs text-red-400 text-right">計: {totalRedSkills}pt</div>
+                                        </div>
+                                    </div>
+                                </Card>
+                            )}
 
                             {/* 技術スタック */}
                             <Card variant="glass" padding="md">
@@ -222,21 +278,32 @@ export function CareerScreen({
                 {/* サイドパネル */}
                 <div className="lg:col-span-1">
                     <Card variant="glass" padding="md" className="sticky top-6">
-                        <h2 className="text-lg font-bold text-white mb-4 text-center">能力チャート</h2>
-                        <div className="flex justify-center">
-                            <HexagonChart
-                                statsBlue={player.statsBlue}
-                                statsRed={player.statsRed}
-                                size={200}
-                            />
+                        <h2 className="text-lg font-bold text-white mb-4">プロフィール</h2>
+
+                        {/* 基本情報サマリ */}
+                        <div className="space-y-2 text-sm mb-4">
+                            <p className="text-gray-400">
+                                年齢: <span className="text-white">{currentYear - player.birthYear}歳</span>
+                            </p>
+                            <p className="text-gray-400">
+                                経験: <span className="text-white">{yearsOfExperience}年</span>
+                            </p>
                         </div>
-                        <div className="mt-4 text-center text-sm">
-                            <div className="text-blue-400">技術: {totalBlueSkills}pt</div>
-                            <div className="text-red-400">対人: {totalRedSkills}pt</div>
+
+                        {/* スキル合計 */}
+                        <div className="grid grid-cols-2 gap-2 mb-4">
+                            <div className="bg-gray-800 p-2 rounded text-center">
+                                <div className="text-xs text-gray-400">技術</div>
+                                <div className="text-lg font-bold text-blue-400">{totalBlueSkills}</div>
+                            </div>
+                            <div className="bg-gray-800 p-2 rounded text-center">
+                                <div className="text-xs text-gray-400">対人</div>
+                                <div className="text-lg font-bold text-red-400">{totalRedSkills}</div>
+                            </div>
                         </div>
 
                         {/* 特性 */}
-                        <div className="mt-6">
+                        <div>
                             <h3 className="text-sm text-gray-400 mb-2">特性</h3>
                             <div className="flex flex-wrap gap-1">
                                 {player.traits.length > 0 ? (
@@ -249,6 +316,13 @@ export function CareerScreen({
                                     <span className="text-gray-500 text-xs">特性なし</span>
                                 )}
                             </div>
+                        </div>
+
+                        {/* ヒント */}
+                        <div className="mt-6 p-3 bg-gray-800/50 rounded-lg">
+                            <p className="text-xs text-gray-400">
+                                💡 訓練でスキルを上げるには、PMコックピットで「訓練」タスクをアサインしてください
+                            </p>
                         </div>
                     </Card>
                 </div>
