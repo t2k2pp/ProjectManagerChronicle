@@ -15,6 +15,7 @@ import { EventDialog } from './components/game/EventDialog';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
 import { checkProjectCompletion as checkTasksComplete } from './lib/projectScore';
 import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/projectEvents';
+import { processTurn, checkProjectFailure } from './lib/engine/turnProcessor';
 import type { Project, Task, Character } from './types';
 import type { ActivityResult } from './lib/activities';
 import './index.css';
@@ -168,43 +169,59 @@ function App() {
             teamMembers={teamMembers}
             currentWeek={currentProject.schedule.currentWeek}
             onNextTurn={() => {
-              // 週を進める
-              const newWeek = currentProject.schedule.currentWeek + 1;
+              if (!worldState || !playerCharacter) return;
 
-              // タスク進捗をシミュレート（アサイン済みタスクの進捗を増加）
-              const updatedTasks = currentTasks.map(t => {
-                if (t.assigneeId && t.progress < 100) {
-                  // 担当者がいるタスクは進捗増加
-                  const progressIncrease = 20 + Math.random() * 10;
-                  return { ...t, progress: Math.min(100, t.progress + progressIncrease) };
-                }
-                return t;
-              });
-              setCurrentTasks(updatedTasks);
+              // ターンプロセッサーでシミュレーション実行
+              const turnResult = processTurn(
+                worldState,
+                currentProject,
+                currentTasks,
+                playerCharacter
+              );
 
-              // プロジェクト完了判定
-              const completion = checkTasksComplete(updatedTasks);
-              const isOverdue = newWeek > currentProject.schedule.endWeek;
+              // ワールド状態更新（年・週が進む）
+              // Note: processTurnは内部でworldStateを変更している
 
-              if (completion.isComplete || isOverdue) {
-                // プロジェクト完了 → 完了画面へ
-                setCurrentProject(prev => prev ? {
-                  ...prev,
-                  schedule: { ...prev.schedule, currentWeek: newWeek },
-                  status: completion.isComplete ? 'COMPLETED' : 'FAILED',
-                } : null);
-                setPhase('PROJECT_COMPLETION');
-              } else {
-                // 継続
-                setCurrentProject(prev => prev ? {
-                  ...prev,
-                  schedule: { ...prev.schedule, currentWeek: newWeek }
-                } : null);
+              // プロジェクト完了/失敗判定
+              if (currentProject) {
+                const tasksComplete = checkTasksComplete(currentTasks);
+                const failure = checkProjectFailure(currentProject);
+                const isOverdue = turnResult.week > currentProject.schedule.endWeek;
 
-                // ランダムイベント発生チェック
-                const event = checkRandomEvent(currentProject, newWeek);
-                if (event) {
-                  setCurrentEvent(event);
+                if (tasksComplete.isComplete) {
+                  // プロジェクト成功
+                  setCurrentProject(prev => prev ? {
+                    ...prev,
+                    schedule: { ...prev.schedule, currentWeek: turnResult.week },
+                    status: 'COMPLETED',
+                  } : null);
+                  setPhase('PROJECT_COMPLETION');
+                } else if (failure.failed || isOverdue) {
+                  // プロジェクト失敗
+                  setCurrentProject(prev => prev ? {
+                    ...prev,
+                    schedule: { ...prev.schedule, currentWeek: turnResult.week },
+                    status: 'FAILED',
+                  } : null);
+                  setPhase('PROJECT_COMPLETION');
+                } else {
+                  // 継続
+                  setCurrentProject(prev => prev ? {
+                    ...prev,
+                    schedule: { ...prev.schedule, currentWeek: turnResult.week },
+                    evm: prev.evm, // EVMは processTurn で更新済み
+                  } : null);
+
+                  // ターン結果のイベントを表示（歴史イベントなど）
+                  if (turnResult.events.length > 0) {
+                    console.log('Turn events:', turnResult.events);
+                  }
+
+                  // ランダムイベント発生チェック
+                  const event = checkRandomEvent(currentProject, turnResult.week);
+                  if (event) {
+                    setCurrentEvent(event);
+                  }
                 }
               }
             }}
