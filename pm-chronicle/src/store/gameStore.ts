@@ -16,6 +16,8 @@ export type GamePhase =
     | 'PROJECT_SELECT'  // 案件選択
     | 'BIDDING'         // 入札バトル
     | 'PM_COCKPIT'      // PMコックピット（メイン）
+    | 'PROJECT_COMPLETION' // プロジェクト完了
+    | 'ACTIVITY'        // 日常活動
     | 'CARD_BATTLE'     // カードバトル
     | 'VACATION_PUZZLE' // 休暇パズル
     | 'REPORT'          // 振り返りレポート

@@ -5,9 +5,12 @@
 
 import { useEffect, useState } from 'react';
 import { useGameStore, getPlayerCharacter, getPlayerCompany } from './store/gameStore';
-import { TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen, IndustryMapScreen, CareerScreen, type GameStartOptions } from './components/screens';
+import { TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen, IndustryMapScreen, CareerScreen, ProjectCompletionScreen, type GameStartOptions } from './components/screens';
+import { ActivitySelector } from './components/game/ActivitySelector';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
+import { checkProjectCompletion } from './lib/projectScore';
 import type { Project, Task, Character } from './types';
+import type { ActivityResult } from './lib/activities';
 import './index.css';
 
 function App() {
@@ -139,6 +142,7 @@ function App() {
             }}
             onOpenCareer={() => setPhase('CAREER')}
             onOpenIndustryMap={() => setPhase('INDUSTRY_MAP')}
+            onOpenActivity={() => setPhase('ACTIVITY')}
             onContinueProject={() => setPhase('PM_COCKPIT')}
           />
         );
@@ -154,11 +158,39 @@ function App() {
             teamMembers={teamMembers}
             currentWeek={currentProject.schedule.currentWeek}
             onNextTurn={() => {
-              // ターン進行（仮実装）
-              setCurrentProject(prev => prev ? {
-                ...prev,
-                schedule: { ...prev.schedule, currentWeek: prev.schedule.currentWeek + 1 }
-              } : null);
+              // 週を進める
+              const newWeek = currentProject.schedule.currentWeek + 1;
+
+              // タスク進捗をシミュレート（アサイン済みタスクの進捗を増加）
+              const updatedTasks = currentTasks.map(t => {
+                if (t.assigneeId && t.progress < 100) {
+                  // 担当者がいるタスクは進捗増加
+                  const progressIncrease = 20 + Math.random() * 10;
+                  return { ...t, progress: Math.min(100, t.progress + progressIncrease) };
+                }
+                return t;
+              });
+              setCurrentTasks(updatedTasks);
+
+              // プロジェクト完了判定
+              const completion = checkProjectCompletion(updatedTasks);
+              const isOverdue = newWeek > currentProject.schedule.endWeek;
+
+              if (completion.isComplete || isOverdue) {
+                // プロジェクト完了 → 完了画面へ
+                setCurrentProject(prev => prev ? {
+                  ...prev,
+                  schedule: { ...prev.schedule, currentWeek: newWeek },
+                  status: completion.isComplete ? 'COMPLETED' : 'FAILED',
+                } : null);
+                setPhase('PROJECT_COMPLETION');
+              } else {
+                // 継続
+                setCurrentProject(prev => prev ? {
+                  ...prev,
+                  schedule: { ...prev.schedule, currentWeek: newWeek }
+                } : null);
+              }
             }}
             onAssignTask={(taskId, characterId) => {
               setCurrentTasks(prev =>
@@ -191,6 +223,54 @@ function App() {
             currentYear={worldState?.currentYear || 2020}
             onBack={() => setPhase('DASHBOARD')}
           />
+        );
+
+      case 'PROJECT_COMPLETION':
+        if (!currentProject || !playerCharacter) {
+          return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+        }
+        return (
+          <ProjectCompletionScreen
+            project={currentProject}
+            tasks={currentTasks}
+            teamMembers={teamMembers}
+            onComplete={(score) => {
+              console.log('Project completed with score:', score);
+              // プロジェクトをリセットしてダッシュボードへ
+              setCurrentProject(null);
+              setCurrentTasks([]);
+              setPhase('DASHBOARD');
+            }}
+            onBack={() => setPhase('DASHBOARD')}
+          />
+        );
+
+      case 'ACTIVITY':
+        if (!playerCharacter) {
+          return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+        }
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-6">
+            <div className="max-w-2xl mx-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-white">🎉 日常活動</h1>
+                <button
+                  onClick={() => setPhase('DASHBOARD')}
+                  className="px-4 py-2 bg-gray-700 rounded-lg text-white hover:bg-gray-600"
+                >
+                  ← 戻る
+                </button>
+              </div>
+              <ActivitySelector
+                player={playerCharacter}
+                teammates={teamMembers}
+                onActivityComplete={(result: ActivityResult) => {
+                  console.log('Activity completed:', result);
+                  // TODO: プレイヤーステータス更新
+                }}
+              />
+            </div>
+          </div>
         );
 
       default:
