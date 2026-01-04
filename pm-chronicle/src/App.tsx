@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useGameStore, getPlayerCharacter, getPlayerCompany } from './store/gameStore';
 import {
   TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen,
-  IndustryMapScreen, CareerScreen, ProjectCompletionScreen,
+  IndustryMapScreen, CareerScreen, ProjectCompletionScreen, ReportScreen,
   type GameStartOptions
 } from './components/screens';
 import { ActivitySelector } from './components/game/ActivitySelector';
@@ -274,6 +274,7 @@ function App() {
               setCurrentTasks([]);
               setPhase('DASHBOARD');
             }}
+            onViewReport={() => setPhase('REPORT')}
             onBack={() => setPhase('DASHBOARD')}
           />
         );
@@ -304,6 +305,22 @@ function App() {
               />
             </div>
           </div>
+        );
+
+      case 'REPORT':
+        if (!currentProject || !playerCharacter) {
+          return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+        }
+        return (
+          <ReportScreen
+            project={currentProject}
+            player={playerCharacter}
+            logs={[]}
+            onBack={() => setPhase('PROJECT_COMPLETION')}
+            onExport={() => {
+              console.log('Export report');
+            }}
+          />
         );
 
       default:

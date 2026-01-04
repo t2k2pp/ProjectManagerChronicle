@@ -13,6 +13,7 @@ interface ProjectCompletionScreenProps {
     tasks: Task[];
     teamMembers: Character[];
     onComplete: (score: ProjectScore) => void;
+    onViewReport?: () => void;
     onBack: () => void;
 }
 
@@ -21,6 +22,7 @@ export function ProjectCompletionScreen({
     tasks,
     teamMembers,
     onComplete,
+    onViewReport,
     onBack,
 }: ProjectCompletionScreenProps) {
     const [score, setScore] = useState<ProjectScore | null>(null);
@@ -212,14 +214,26 @@ export function ProjectCompletionScreen({
                 </Card>
 
                 {/* 完了ボタン */}
-                <Button
-                    variant="primary"
-                    onClick={() => onComplete(score)}
-                    className="w-full"
-                    disabled={!animationComplete}
-                >
-                    報酬を受け取る →
-                </Button>
+                <div className="flex gap-4">
+                    {onViewReport && (
+                        <Button
+                            variant="secondary"
+                            onClick={onViewReport}
+                            className="flex-1"
+                            disabled={!animationComplete}
+                        >
+                            🤖 AI分析レポート
+                        </Button>
+                    )}
+                    <Button
+                        variant="primary"
+                        onClick={() => onComplete(score)}
+                        className="flex-1"
+                        disabled={!animationComplete}
+                    >
+                        報酬を受け取る →
+                    </Button>
+                </div>
             </div>
         </div>
     );
