@@ -7,8 +7,10 @@ import { useEffect, useState } from 'react';
 import { useGameStore, getPlayerCharacter, getPlayerCompany } from './store/gameStore';
 import { TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen, IndustryMapScreen, CareerScreen, ProjectCompletionScreen, type GameStartOptions } from './components/screens';
 import { ActivitySelector } from './components/game/ActivitySelector';
+import { EventDialog } from './components/game/EventDialog';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
 import { checkProjectCompletion } from './lib/projectScore';
+import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/projectEvents';
 import type { Project, Task, Character } from './types';
 import type { ActivityResult } from './lib/activities';
 import './index.css';
@@ -31,6 +33,9 @@ function App() {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [currentTasks, setCurrentTasks] = useState<Task[]>([]);
   const [teamMembers, setTeamMembers] = useState<Character[]>([]);
+
+  // イベントシステム
+  const [currentEvent, setCurrentEvent] = useState<ProjectEvent | null>(null);
 
   // 初期化
   useEffect(() => {
@@ -190,6 +195,12 @@ function App() {
                   ...prev,
                   schedule: { ...prev.schedule, currentWeek: newWeek }
                 } : null);
+
+                // ランダムイベント発生チェック
+                const event = checkRandomEvent(currentProject, newWeek);
+                if (event) {
+                  setCurrentEvent(event);
+                }
               }
             }}
             onAssignTask={(taskId, characterId) => {
@@ -321,7 +332,45 @@ function App() {
     );
   }
 
-  return renderScreen();
+  // イベントハンドラ
+  const handleEventAccept = () => {
+    if (currentEvent && currentProject) {
+      const updated = applyEventEffect(currentProject, currentEvent.options.accept.effect);
+      setCurrentProject(updated);
+      setCurrentEvent(null);
+    }
+  };
+
+  const handleEventReject = () => {
+    if (currentEvent && currentProject) {
+      const updated = applyEventEffect(currentProject, currentEvent.options.reject.effect);
+      setCurrentProject(updated);
+      setCurrentEvent(null);
+    }
+  };
+
+  const handleEventNegotiate = () => {
+    if (currentEvent) {
+      // カードバトルへ遷移
+      setPhase('CARD_BATTLE');
+      // イベントは保持（バトル後に処理）
+    }
+  };
+
+  return (
+    <>
+      {renderScreen()}
+      {/* イベントダイアログ */}
+      {currentEvent && (
+        <EventDialog
+          event={currentEvent}
+          onAccept={handleEventAccept}
+          onReject={handleEventReject}
+          onNegotiate={currentEvent.options.negotiate ? handleEventNegotiate : undefined}
+        />
+      )}
+    </>
+  );
 }
 
 export default App;
