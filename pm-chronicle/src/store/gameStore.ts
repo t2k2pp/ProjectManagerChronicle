@@ -46,6 +46,10 @@ interface GameState {
     currentProjectId: string | null;
     setCurrentProjectId: (id: string | null) => void;
 
+    // プロジェクト開始フロー用ステート
+    pendingProposalId: string | null;
+    setPendingProposalId: (id: string | null) => void;
+
     // ローディング状態
     isLoading: boolean;
     setIsLoading: (loading: boolean) => void;
@@ -71,6 +75,7 @@ export const useGameStore = create<GameState>()(
             worldState: null,
             playerId: null,
             currentProjectId: null,
+            pendingProposalId: null,
             isLoading: false,
             error: null,
 
@@ -80,6 +85,7 @@ export const useGameStore = create<GameState>()(
             setWorldState: (world) => set({ worldState: world }),
             setPlayerId: (id) => set({ playerId: id }),
             setCurrentProjectId: (id) => set({ currentProjectId: id }),
+            setPendingProposalId: (id) => set({ pendingProposalId: id }),
             setIsLoading: (loading) => set({ isLoading: loading }),
             setError: (error) => set({ error }),
 

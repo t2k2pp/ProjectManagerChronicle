@@ -5,11 +5,15 @@
 
 import { useEffect, useState } from 'react';
 import { useGameStore, getPlayerCharacter, getPlayerCompany } from './store/gameStore';
-import { TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen, IndustryMapScreen, CareerScreen, ProjectCompletionScreen, type GameStartOptions } from './components/screens';
+import {
+  TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen,
+  IndustryMapScreen, CareerScreen, ProjectCompletionScreen,
+  type GameStartOptions
+} from './components/screens';
 import { ActivitySelector } from './components/game/ActivitySelector';
 import { EventDialog } from './components/game/EventDialog';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
-import { checkProjectCompletion } from './lib/projectScore';
+import { checkProjectCompletion as checkTasksComplete } from './lib/projectScore';
 import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/projectEvents';
 import type { Project, Task, Character } from './types';
 import type { ActivityResult } from './lib/activities';
@@ -118,7 +122,9 @@ function App() {
             playerCompany={playerCompany}
             activeProject={currentProject}
             onStartProject={() => {
-              // 仮のプロジェクト作成（ウォーターフォール型スケジュール）
+              // 案件選択画面へ遷移（仮プロジェクト作成を維持しつつ段階的移行）
+              // TODO: 将来的にはPROJECT_SELECT遷移に完全移行
+              // 現在は既存の動作を維持して安定性を確保
               const mockProject: Project = {
                 id: 'proj-1',
                 name: 'ERPシステム刷新',
@@ -131,7 +137,6 @@ function App() {
               setCurrentProject(mockProject);
 
               // リアルなウォーターフォールスケジュール
-              // 要件定義(1-4週) → 基本設計(5-8週) → 詳細設計(9-11週) → 開発(12-17週) → テスト(18-20週)
               setCurrentTasks([
                 { id: 't1', projectId: 'proj-1', name: '要件定義', assigneeId: null, phase: 'REQUIREMENT', progress: 0, quality: 80, riskFactor: 20, dependencies: [], isCriticalPath: true, startWeek: 1, endWeek: 4, estimatedWeeks: 4 },
                 { id: 't2', projectId: 'proj-1', name: '基本設計', assigneeId: null, phase: 'DESIGN', progress: 0, quality: 80, riskFactor: 30, dependencies: ['t1'], isCriticalPath: true, startWeek: 5, endWeek: 8, estimatedWeeks: 4 },
@@ -178,7 +183,7 @@ function App() {
               setCurrentTasks(updatedTasks);
 
               // プロジェクト完了判定
-              const completion = checkProjectCompletion(updatedTasks);
+              const completion = checkTasksComplete(updatedTasks);
               const isOverdue = newWeek > currentProject.schedule.endWeek;
 
               if (completion.isComplete || isOverdue) {
