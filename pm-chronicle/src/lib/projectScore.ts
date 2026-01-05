@@ -45,7 +45,8 @@ export function checkProjectCompletion(tasks: Task[]): {
 } {
     const completed = tasks.filter(t => t.progress >= 100).length;
     return {
-        isComplete: completed === tasks.length,
+        // 空配列の場合は完了とみなさない
+        isComplete: tasks.length > 0 && completed === tasks.length,
         completionRate: tasks.length > 0 ? (completed / tasks.length) * 100 : 0,
         incompleteCount: tasks.length - completed,
     };
