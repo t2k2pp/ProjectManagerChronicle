@@ -7,12 +7,15 @@ import { useState } from 'react';
 import { Card, CardHeader, Button } from '../common';
 import { GanttChart, EVMeter, CharacterList, TaskAssignmentPanel } from '../game/PMCockpit';
 import type { Project, Task, Character } from '../../types';
+import type { ProjectPolicy } from '../../lib/engine/turnProcessor';
 
 interface PMCockpitScreenProps {
     project: Project;
     tasks: Task[];
     teamMembers: Character[];
     currentWeek: number;
+    currentPolicy?: ProjectPolicy;
+    onPolicyChange?: (policy: ProjectPolicy) => void;
     onNextTurn: () => void;
     onAssignTask: (taskId: string, characterId: string) => void;
     onUnassignTask: (taskId: string) => void;
@@ -24,6 +27,8 @@ export function PMCockpitScreen({
     tasks,
     teamMembers,
     currentWeek,
+    currentPolicy = 'NORMAL',
+    onPolicyChange,
     onNextTurn,
     onAssignTask,
     onUnassignTask,
@@ -71,6 +76,26 @@ export function PMCockpitScreen({
                                 </div>
                             </div>
                         </div>
+
+                        {/* ポリシー選択 */}
+                        {onPolicyChange && (
+                            <div className="flex gap-1">
+                                {(['NORMAL', 'QUALITY_FIRST', 'RUSH'] as const).map(policy => (
+                                    <button
+                                        key={policy}
+                                        onClick={() => onPolicyChange(policy)}
+                                        className={`px-3 py-1 rounded text-xs font-medium transition ${currentPolicy === policy
+                                                ? policy === 'NORMAL' ? 'bg-blue-600 text-white'
+                                                    : policy === 'QUALITY_FIRST' ? 'bg-green-600 text-white'
+                                                        : 'bg-red-600 text-white'
+                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        {policy === 'NORMAL' ? '通常' : policy === 'QUALITY_FIRST' ? '品質優先' : '突貫'}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         <Button onClick={onNextTurn} variant="primary">
                             ターン進行 →

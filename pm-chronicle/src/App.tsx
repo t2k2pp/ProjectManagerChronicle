@@ -15,7 +15,7 @@ import { EventDialog } from './components/game/EventDialog';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
 import { checkProjectCompletion as checkTasksComplete } from './lib/projectScore';
 import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/projectEvents';
-import { processTurn, checkProjectFailure } from './lib/engine/turnProcessor';
+import { processTurn, checkProjectFailure, type ProjectPolicy } from './lib/engine/turnProcessor';
 import type { Project, Task, Character } from './types';
 import type { ActivityResult } from './lib/activities';
 import './index.css';
@@ -41,6 +41,9 @@ function App() {
 
   // イベントシステム
   const [currentEvent, setCurrentEvent] = useState<ProjectEvent | null>(null);
+
+  // 方針（ポリシー）ステート
+  const [currentPolicy, setCurrentPolicy] = useState<ProjectPolicy>('NORMAL');
 
   // 初期化
   useEffect(() => {
@@ -168,15 +171,18 @@ function App() {
             tasks={currentTasks}
             teamMembers={teamMembers}
             currentWeek={currentProject.schedule.currentWeek}
+            currentPolicy={currentPolicy}
+            onPolicyChange={setCurrentPolicy}
             onNextTurn={() => {
               if (!worldState || !playerCharacter) return;
 
-              // ターンプロセッサーでシミュレーション実行
+              // ターンプロセッサーでシミュレーション実行（ポリシー適用）
               const turnResult = processTurn(
                 worldState,
                 currentProject,
                 currentTasks,
-                playerCharacter
+                playerCharacter,
+                currentPolicy
               );
 
               // ワールド状態更新（年・週が進む）
