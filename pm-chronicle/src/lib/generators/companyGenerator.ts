@@ -126,12 +126,13 @@ export function generateCompany(
     };
 }
 
-/** 全企業を生成（大企業5社 + 中小15社） */
+/** 全企業を生成（大企業5社 + 中小15社 + ベンチャー5社） */
 export function generateCompanies(
     baseSeed: number,
     startYear: number,
     largeCo: number = 5,
-    mediumCo: number = 15
+    mediumCo: number = 15,
+    ventureCo: number = 5
 ): Company[] {
     const companies: Company[] = [];
     let seed = baseSeed;
@@ -144,6 +145,11 @@ export function generateCompanies(
     // 中小企業
     for (let i = 0; i < mediumCo; i++) {
         companies.push(generateCompany(seed++, 'MEDIUM', startYear));
+    }
+
+    // ベンチャー企業
+    for (let i = 0; i < ventureCo; i++) {
+        companies.push(generateCompany(seed++, 'VENTURE', startYear));
     }
 
     // ライバル関係を設定（同カテゴリ内でランダムに）
