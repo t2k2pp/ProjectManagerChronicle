@@ -207,14 +207,28 @@ function processProjectWeek(
         // StatsRed効果計算
         const redStats = assignee.statsRed;
 
-        // 美貌(Charm): 周囲への能力向上バフ（最大+20%）
-        const charmBonus = 1 + (redStats.charm / 50);
+        // 覚醒ボーナス (True Nameボーナス: 1.2倍)
+        const awakeningBonus = assignee.isAwakened ? 1.2 : 1.0;
+
+        // 士気補正 (mood 0-100 → 0.5-1.5倍)
+        const moraleModifier = 0.5 + (assignee.mood / 100);
+
+        // 美貌(Charm): チーム全体への能力向上バフ（Aura効果）
+        // チーム全員のCharm平均で全体補正
+        const allAssignees = assignedTasks
+            .map(t => worldState.npcs.find(n => n.id === t.assigneeId) ||
+                worldState.freelancers.find(f => f.id === t.assigneeId))
+            .filter((c): c is Character => c !== undefined);
+        const teamCharmAvg = allAssignees.length > 0
+            ? allAssignees.reduce((sum, c) => sum + c.statsRed.charm, 0) / allAssignees.length
+            : 5;
+        const charmBonus = 1 + (teamCharmAvg / 50);
 
         // 幸運(Luck): トラブル回避率向上（後述のリスク判定で使用）
         const luckFactor = redStats.luck / 10;
 
-        // 進捗計算（スキル値 × ポリシー補正 × 美貌バフ × 季節補正）
-        const baseProgress = skillValue * 2 * modifier.progress * charmBonus * seasonal.productivity;
+        // 進捗計算（スキル値 × ポリシー補正 × 美貌バフ × 季節補正 × 覚醒 × 士気）
+        const baseProgress = skillValue * 2 * modifier.progress * charmBonus * seasonal.productivity * awakeningBonus * moraleModifier;
         const progressMade = Math.min(100 - task.progress, baseProgress);
 
         task.progress += progressMade;

@@ -99,6 +99,10 @@ export interface Character {
         backstory: string;
     };
 
+    // 覚醒・士気
+    isAwakened: boolean;  // 覚醒状態（True Name達成時）
+    mood: number;         // 士気 0-100
+
     // 経済
     money: number; // 所持金（万円）
     monthlySalary?: number; // 月収（計算値、万円）

@@ -142,6 +142,8 @@ export function generateMobEmployee(
         relationships: [],
         marriageStatus,
         childCount: marriageStatus === 'MARRIED' ? randomInt(0, 2) : 0,
+        isAwakened: false,    // モブは未覚醒
+        mood: randomInt(50, 80), // モブ士気50-80
         money: 0,
         certifications: [],
     };

@@ -14,3 +14,4 @@ export { ProjectCompletionScreen } from './ProjectCompletionScreen';
 export { ProposalScreen } from './ProposalScreen';
 export { WBSPlanningScreen } from './WBSPlanningScreen';
 export { MemberDashboard } from './MemberDashboard';
+export { VacationPuzzleScreen } from './VacationPuzzleScreen';
