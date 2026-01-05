@@ -45,6 +45,27 @@ const POLICY_MODIFIERS: Record<ProjectPolicy, { progress: number; quality: numbe
     RUSH: { progress: 1.5, quality: 0.7, stamina: 1.5 },          // 進捗速いが品質低い・疲労大
 };
 
+/** 季節稼働率補正（週番号 → 稼働率係数） */
+function getSeasonalModifier(week: number): { productivity: number; event?: string } {
+    // GW (18週目前後 = 4月末〜5月初)
+    if (week >= 17 && week <= 19) {
+        return { productivity: 0.6, event: 'ゴールデンウィーク期間中' };
+    }
+    // お盆 (33週目前後 = 8月中旬)
+    if (week >= 32 && week <= 34) {
+        return { productivity: 0.7, event: 'お盆期間中' };
+    }
+    // 年末年始 (52週目〜1週目)
+    if (week >= 51 || week <= 1) {
+        return { productivity: 0.5, event: '年末年始期間中' };
+    }
+    // 年度末 (12-13週目 = 3月末)
+    if (week >= 12 && week <= 13) {
+        return { productivity: 0.9, event: '年度末繁忙期' };
+    }
+    return { productivity: 1.0 };
+}
+
 /** 週数から年と週を計算 */
 export function weekToYearWeek(totalWeeks: number, startYear: number): { year: number; week: number } {
     const year = startYear + Math.floor((totalWeeks - 1) / 52);
@@ -157,6 +178,9 @@ function processProjectWeek(
     // ポリシー補正係数を取得
     const modifier = POLICY_MODIFIERS[policy];
 
+    // 季節稼働率補正を取得
+    const seasonal = getSeasonalModifier(worldState.currentWeek);
+
     let evEarned = 0;
     let acSpent = 0;
     let totalProgress = 0;
@@ -174,12 +198,23 @@ function processProjectWeek(
             'DESIGN': 'design',
             'DEVELOP': 'develop',
             'TEST': 'test',
+            'INTEGRATION': 'judgment',  // 統合フェーズは判断力
+            'REVIEW': 'judgment',       // レビューフェーズも判断力
         };
         const relevantSkill = taskPhaseSkills[task.phase] || 'develop';
         const skillValue = assignee.statsBlue[relevantSkill];
 
-        // 進捗計算（スキル値 × ポリシー補正）
-        const baseProgress = skillValue * 2 * modifier.progress;
+        // StatsRed効果計算
+        const redStats = assignee.statsRed;
+
+        // 美貌(Charm): 周囲への能力向上バフ（最大+20%）
+        const charmBonus = 1 + (redStats.charm / 50);
+
+        // 幸運(Luck): トラブル回避率向上（後述のリスク判定で使用）
+        const luckFactor = redStats.luck / 10;
+
+        // 進捗計算（スキル値 × ポリシー補正 × 美貌バフ × 季節補正）
+        const baseProgress = skillValue * 2 * modifier.progress * charmBonus * seasonal.productivity;
         const progressMade = Math.min(100 - task.progress, baseProgress);
 
         task.progress += progressMade;
@@ -192,12 +227,14 @@ function processProjectWeek(
         const taskValue = 100000; // 仮の1タスク価値
         evEarned += (progressMade / 100) * taskValue;
 
-        // AC計算（実コスト = 人件費）
-        const weeklySalary = 150000 + (assignee.position.rank * 50000);
+        // AC計算（実コスト = 人件費 × 庶務によるAP削減）
+        const adminDiscount = 1 - (redStats.admin / 100); // 最大10%削減
+        const weeklySalary = (150000 + (assignee.position.rank * 50000)) * adminDiscount;
         acSpent += weeklySalary;
 
-        // リスク発現チェック
-        if (task.riskFactor > 50 && Math.random() < task.riskFactor / 200) {
+        // リスク発現チェック（幸運で軽減）
+        const riskThreshold = (task.riskFactor / 200) * (1 - luckFactor);
+        if (task.riskFactor > 50 && Math.random() < riskThreshold) {
             issues.push(`タスク「${task.name || task.id}」で問題発生`);
         }
 
@@ -221,11 +258,14 @@ function processProjectWeek(
 }
 
 /** キャラクター週次処理 */
-function processCharacterWeek(character: Character): CharacterUpdate {
-    // スタミナ回復
+function processCharacterWeek(character: Character, teammates: Character[] = []): CharacterUpdate {
+    // Service効果: チームメンバーの給仕スキルによる回復支援
+    const serviceBonus = teammates.reduce((sum, tm) => sum + tm.statsRed.service, 0) / 10;
+
+    // スタミナ回復（基礎 + Service支援）
     const staminaRecovered = Math.min(
         character.stamina.max - character.stamina.current,
-        character.stamina.recoveryRate
+        character.stamina.recoveryRate + serviceBonus
     );
     character.stamina.current += staminaRecovered;
 
