@@ -167,7 +167,75 @@ export function checkBankruptcy(
     return random() < (bankruptcyChance * categoryModifier);
 }
 
-/** 1年分のシミュレーション */
+/** 結婚判定 */
+export function checkMarriage(
+    npc: Character,
+    currentYear: number,
+    seed: number
+): boolean {
+    const random = seededRandom(seed);
+    const age = calculateAge(npc, currentYear);
+
+    // 既婚者は対象外（SPOUSEタイプの関係があれば既婚）
+    const hasSpouse = npc.relationships.some(r => r.type === 'SPOUSE');
+    if (hasSpouse) return false;
+
+    // 25-40歳が結婚適齢期
+    if (age < 25 || age > 40) return false;
+
+    // 年齢による結婚確率（30歳がピーク）
+    const ageModifier = 1 - Math.abs(age - 30) / 15;
+
+    // 魅力・安定志向が高いと結婚しやすい
+    const marriageChance = ageModifier * 0.08;
+
+    return random() < marriageChance;
+}
+
+/** 出産判定（既婚者のみ） */
+export function checkChildbirth(
+    npc: Character,
+    currentYear: number,
+    seed: number
+): boolean {
+    const random = seededRandom(seed);
+    const age = calculateAge(npc, currentYear);
+
+    // 未婚者は対象外
+    const hasSpouse = npc.relationships.some(r => r.type === 'SPOUSE');
+    if (!hasSpouse) return false;
+
+    // 25-42歳が出産可能年齢
+    if (age < 25 || age > 42) return false;
+
+    // 年齢による出産確率
+    const ageModifier = Math.max(0, 1 - (age - 25) / 20);
+    const childbirthChance = ageModifier * 0.12;
+
+    return random() < childbirthChance;
+}
+
+/** 企業M&A（買収）判定 */
+export function checkAcquisition(
+    acquirer: Company,
+    target: Company,
+    seed: number
+): boolean {
+    const random = seededRandom(seed);
+
+    // 買収企業は財務健全で大きい必要
+    if (acquirer.financialHealth < 70) return false;
+    if (acquirer.category === 'VENTURE') return false;
+
+    // ターゲット企業は経営難
+    if (target.financialHealth > 40) return false;
+
+    // 同業種（specialtiesが重複）優先
+    const hasOverlap = acquirer.specialties.some(s => target.specialties.includes(s));
+    const acquisitionChance = hasOverlap ? 0.15 : 0.05;
+
+    return random() < acquisitionChance;
+}
 export function simulateYear(
     npcs: Character[],
     companies: Company[],

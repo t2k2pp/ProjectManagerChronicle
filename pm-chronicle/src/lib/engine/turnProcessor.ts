@@ -35,6 +35,16 @@ export interface CharacterUpdate {
     experienceGained: number;
 }
 
+/** プロジェクト方針（ポリシー） */
+export type ProjectPolicy = 'NORMAL' | 'QUALITY_FIRST' | 'RUSH';
+
+/** ポリシー補正係数 */
+const POLICY_MODIFIERS: Record<ProjectPolicy, { progress: number; quality: number; stamina: number }> = {
+    NORMAL: { progress: 1.0, quality: 1.0, stamina: 1.0 },
+    QUALITY_FIRST: { progress: 0.7, quality: 1.3, stamina: 1.1 },  // 進捗遅いが品質高い
+    RUSH: { progress: 1.5, quality: 0.7, stamina: 1.5 },          // 進捗速いが品質低い・疲労大
+};
+
 /** 週数から年と週を計算 */
 export function weekToYearWeek(totalWeeks: number, startYear: number): { year: number; week: number } {
     const year = startYear + Math.floor((totalWeeks - 1) / 52);
@@ -52,7 +62,8 @@ export function processTurn(
     worldState: WorldState,
     activeProject: Project | null,
     tasks: Task[],
-    playerCharacter: Character
+    playerCharacter: Character,
+    policy: ProjectPolicy = 'NORMAL'
 ): TurnResult {
     const totalWeeks = yearWeekToTotalWeeks(
         worldState.currentYear,
@@ -99,9 +110,9 @@ export function processTurn(
         }
     }
 
-    // プロジェクト処理
+    // プロジェクト処理（ポリシー適用）
     if (activeProject && activeProject.status === 'RUNNING') {
-        const projectUpdate = processProjectWeek(activeProject, tasks, worldState);
+        const projectUpdate = processProjectWeek(activeProject, tasks, worldState, policy);
         result.projectUpdates.push(projectUpdate);
     }
 
@@ -120,10 +131,14 @@ export function processTurn(
 function processProjectWeek(
     project: Project,
     tasks: Task[],
-    worldState: WorldState
+    worldState: WorldState,
+    policy: ProjectPolicy = 'NORMAL'
 ): ProjectUpdate {
     const projectTasks = tasks.filter(t => t.projectId === project.id);
     const assignedTasks = projectTasks.filter(t => t.assigneeId !== null);
+
+    // ポリシー補正係数を取得
+    const modifier = POLICY_MODIFIERS[policy];
 
     let evEarned = 0;
     let acSpent = 0;
@@ -146,12 +161,15 @@ function processProjectWeek(
         const relevantSkill = taskPhaseSkills[task.phase] || 'develop';
         const skillValue = assignee.statsBlue[relevantSkill];
 
-        // 進捗計算（スキル値 * ランダム要因）
-        const baseProgress = skillValue * 2;
+        // 進捗計算（スキル値 × ポリシー補正）
+        const baseProgress = skillValue * 2 * modifier.progress;
         const progressMade = Math.min(100 - task.progress, baseProgress);
 
         task.progress += progressMade;
         totalProgress += progressMade;
+
+        // 品質計算（ポリシーによる品質変動）
+        task.quality = Math.min(100, Math.max(0, task.quality * modifier.quality));
 
         // EV計算（出来高）
         const taskValue = 100000; // 仮の1タスク価値
@@ -166,8 +184,9 @@ function processProjectWeek(
             issues.push(`タスク「${task.name || task.id}」で問題発生`);
         }
 
-        // スタミナ消費
-        assignee.stamina.current = Math.max(0, assignee.stamina.current - 10);
+        // スタミナ消費（ポリシー補正適用）
+        const staminaCost = Math.round(10 * modifier.stamina);
+        assignee.stamina.current = Math.max(0, assignee.stamina.current - staminaCost);
     }
 
     // プロジェクトEVM更新
