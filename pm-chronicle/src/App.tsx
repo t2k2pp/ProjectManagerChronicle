@@ -12,6 +12,7 @@ import {
 } from './components/screens';
 import { ActivitySelector } from './components/game/ActivitySelector';
 import { EventDialog } from './components/game/EventDialog';
+import { BattleField } from './components/game/CardBattle';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
 import { checkProjectCompletion as checkTasksComplete } from './lib/projectScore';
 import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/projectEvents';
@@ -326,6 +327,22 @@ function App() {
             onExport={() => {
               console.log('Export report');
             }}
+          />
+        );
+
+      case 'CARD_BATTLE':
+        if (!playerCharacter) {
+          return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+        }
+        return (
+          <BattleField
+            playerName={playerCharacter.name}
+            opponentName="ステークホルダー"
+            onBattleEnd={(result) => {
+              console.log('Battle result:', result);
+              setPhase('PM_COCKPIT');
+            }}
+            onCancel={() => setPhase('PM_COCKPIT')}
           />
         );
 
