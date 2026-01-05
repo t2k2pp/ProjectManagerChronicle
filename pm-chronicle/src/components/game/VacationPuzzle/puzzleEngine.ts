@@ -159,3 +159,106 @@ export function suggestVacationDays(
 
     return suggestions;
 }
+
+/** パズル生成結果 */
+export interface VacationPuzzle {
+    periodName: string;
+    periodWeeks: number[];
+    initialSlots: VacationSlot[];
+    blockedDays: { week: number; day: number }[];
+    constraints: PuzzleConstraint[];
+}
+
+/** パズル制約 */
+export interface PuzzleConstraint {
+    characterId: string;
+    type: 'MUST_TAKE' | 'PREFER_TAKE' | 'AVOID' | 'MIN_DAYS' | 'MAX_DAYS';
+    value: number | { week: number; day: number }[];
+    reason: string;
+}
+
+/**
+ * 休暇パズルを生成（特性に基づく制約付き）
+ */
+export function generateVacationPuzzle(
+    characters: Character[],
+    tasks: Task[],
+    periodName: string,
+    periodWeeks: number[],
+    projectEndWeek: number
+): VacationPuzzle {
+    const blockedDays = generateBlockedDays(tasks, projectEndWeek);
+    const initialSlots: VacationSlot[] = [];
+    const constraints: PuzzleConstraint[] = [];
+
+    for (const character of characters) {
+        // 特性に基づく制約生成
+        if (character.traits.includes('vacation_lover')) {
+            // 休暇重視型: 最低2日は休暇必須
+            constraints.push({
+                characterId: character.id,
+                type: 'MIN_DAYS',
+                value: 2,
+                reason: `${character.name}は休暇重視型のため、最低2日の休暇が必要です`,
+            });
+        }
+
+        if (character.traits.includes('workaholic')) {
+            // ワーカホリック: 最大1日まで
+            constraints.push({
+                characterId: character.id,
+                type: 'MAX_DAYS',
+                value: 1,
+                reason: `${character.name}はワーカホリックのため、休暇は1日まで`,
+            });
+        }
+
+        // スタミナ低下時は休暇推奨
+        if (character.stamina.current / character.stamina.max < 0.4) {
+            constraints.push({
+                characterId: character.id,
+                type: 'MUST_TAKE',
+                value: 1,
+                reason: `${character.name}のスタミナが低下中。休暇が必要です`,
+            });
+        }
+
+        // 既存の休暇希望があれば初期配置
+        const suggestions = suggestVacationDays(character, tasks, [], periodWeeks);
+        for (const suggestion of suggestions) {
+            initialSlots.push({
+                characterId: character.id,
+                week: suggestion.week,
+                day: suggestion.day,
+                type: 'REQUESTED',
+            });
+        }
+    }
+
+    return {
+        periodName,
+        periodWeeks,
+        initialSlots,
+        blockedDays,
+        constraints,
+    };
+}
+
+/**
+ * 休暇期間判定（GW/お盆/年末年始の2週間前かどうか）
+ */
+export function shouldTriggerVacationPuzzle(week: number): { trigger: boolean; periodName: string } {
+    // GW: 第17週前後（4月下旬～5月上旬）→ 第15週でトリガー
+    if (week === 15) {
+        return { trigger: true, periodName: 'GW' };
+    }
+    // お盆: 第33週前後（8月中旬）→ 第31週でトリガー
+    if (week === 31) {
+        return { trigger: true, periodName: 'お盆' };
+    }
+    // 年末年始: 第52週前後 → 第50週でトリガー
+    if (week === 50) {
+        return { trigger: true, periodName: '年末年始' };
+    }
+    return { trigger: false, periodName: '' };
+}
