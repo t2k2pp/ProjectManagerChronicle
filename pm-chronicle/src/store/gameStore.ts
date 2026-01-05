@@ -50,6 +50,14 @@ interface GameState {
     pendingProposalId: string | null;
     setPendingProposalId: (id: string | null) => void;
 
+    // 難易度設定
+    difficulty: 'TRAINEE' | 'NORMAL' | 'DEATH_MARCH';
+    setDifficulty: (difficulty: 'TRAINEE' | 'NORMAL' | 'DEATH_MARCH') => void;
+
+    // 週次方針
+    currentPolicy: 'NORMAL' | 'QUALITY_FIRST' | 'RUSH';
+    setCurrentPolicy: (policy: 'NORMAL' | 'QUALITY_FIRST' | 'RUSH') => void;
+
     // ローディング状態
     isLoading: boolean;
     setIsLoading: (loading: boolean) => void;
@@ -76,6 +84,8 @@ export const useGameStore = create<GameState>()(
             playerId: null,
             currentProjectId: null,
             pendingProposalId: null,
+            difficulty: 'NORMAL',
+            currentPolicy: 'NORMAL',
             isLoading: false,
             error: null,
 
@@ -86,6 +96,8 @@ export const useGameStore = create<GameState>()(
             setPlayerId: (id) => set({ playerId: id }),
             setCurrentProjectId: (id) => set({ currentProjectId: id }),
             setPendingProposalId: (id) => set({ pendingProposalId: id }),
+            setDifficulty: (difficulty) => set({ difficulty }),
+            setCurrentPolicy: (policy) => set({ currentPolicy: policy }),
             setIsLoading: (loading) => set({ isLoading: loading }),
             setError: (error) => set({ error }),
 
