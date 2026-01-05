@@ -75,6 +75,7 @@ export interface Character {
         max: number;
         recoveryRate: number;
     };
+    ageType: 'BURST' | 'ENDURANCE' | 'EFFICIENT';  // 年齢タイプ
     traits: string[];
     techSkills: string[];
 

@@ -135,6 +135,7 @@ export function generateMobEmployee(
             max: age < 40 ? 100 : 80,
             recoveryRate: age < 40 ? 15 : 10,
         },
+        ageType: age < 30 ? 'BURST' : age < 45 ? 'ENDURANCE' : 'EFFICIENT',
         traits: [],
         techSkills: [],
         loyalty: randomInt(30, 80),

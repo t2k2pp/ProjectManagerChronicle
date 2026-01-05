@@ -28,6 +28,7 @@ export interface YearlySimulationResult {
     bankruptCompanies: Company[];
     acquiredCompanies: { target: Company; acquirer: Company }[];
     newCompanies: Company[];
+    awakenedNpcs: { npc: Character; trueName: string }[];
 }
 
 /** NPC年齢計算 */
@@ -256,6 +257,7 @@ export function simulateYear(
         bankruptCompanies: [],
         acquiredCompanies: [],
         newCompanies: [],
+        awakenedNpcs: [],
     };
 
     let seed = baseSeed + currentYear * 10000;

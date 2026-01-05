@@ -212,6 +212,7 @@ export function generateNPC(
             max: age < 30 ? 80 : age < 45 ? 100 : 60,
             recoveryRate: age < 30 ? 20 : age < 45 ? 10 : 5,
         },
+        ageType: age < 30 ? 'BURST' : age < 45 ? 'ENDURANCE' : 'EFFICIENT',
         traits,
         techSkills,
         loyalty: randomInt(30, 90, random),

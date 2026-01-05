@@ -154,6 +154,8 @@ export function createPlayerCharacter(
             max: 100,
             recoveryRate: options.startType === 'FRESH_GRADUATE' ? 20 : 15,
         },
+        ageType: options.startType === 'FRESH_GRADUATE' ? 'BURST' :
+            options.startType === 'MID_CAREER' ? 'ENDURANCE' : 'ENDURANCE',
         traits: [],
         techSkills: getTrendingSkillsForEra(getEra(currentYear)).slice(0, 3),
         loyalty: 50,

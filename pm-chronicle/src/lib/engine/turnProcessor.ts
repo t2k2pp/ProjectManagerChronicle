@@ -6,6 +6,7 @@
 import type { WorldState, Character, Project, Task } from '../../types';
 import { simulateYear } from '../simulation/npcSimulator';
 import { getEventsForYear } from '../events/historicalEvents';
+import { getProgressModifier, getQualityModifier, getRiskModifier, AGE_TYPES } from '../traits';
 
 /** ターン処理結果 */
 export interface TurnResult {
@@ -227,15 +228,25 @@ function processProjectWeek(
         // 幸運(Luck): トラブル回避率向上（後述のリスク判定で使用）
         const luckFactor = redStats.luck / 10;
 
-        // 進捗計算（スキル値 × ポリシー補正 × 美貌バフ × 季節補正 × 覚醒 × 士気）
-        const baseProgress = skillValue * 2 * modifier.progress * charmBonus * seasonal.productivity * awakeningBonus * moraleModifier;
+        // 特性効果
+        const traitProgressBonus = getProgressModifier(assignee.traits);
+        const traitQualityBonus = getQualityModifier(assignee.traits);
+        const traitRiskModifier = getRiskModifier(assignee.traits);
+
+        // 年齢タイプボーナス
+        const ageTypeDef = AGE_TYPES.find(t => t.type === assignee.ageType);
+        const ageTypeProgressBonus = ageTypeDef?.progressBonus || 1.0;
+
+        // 進捗計算（スキル値 × ポリシー × 美貌バフ × 季節 × 覚醒 × 士気 × 特性 × 年齢タイプ）
+        const baseProgress = skillValue * 2 * modifier.progress * charmBonus * seasonal.productivity
+            * awakeningBonus * moraleModifier * traitProgressBonus * ageTypeProgressBonus;
         const progressMade = Math.min(100 - task.progress, baseProgress);
 
         task.progress += progressMade;
         totalProgress += progressMade;
 
-        // 品質計算（ポリシーによる品質変動）
-        task.quality = Math.min(100, Math.max(0, task.quality * modifier.quality));
+        // 品質計算（ポリシー × 特性効果）
+        task.quality = Math.min(100, Math.max(0, task.quality * modifier.quality * traitQualityBonus));
 
         // EV計算（出来高）
         const taskValue = 100000; // 仮の1タスク価値
@@ -246,8 +257,8 @@ function processProjectWeek(
         const weeklySalary = (150000 + (assignee.position.rank * 50000)) * adminDiscount;
         acSpent += weeklySalary;
 
-        // リスク発現チェック（幸運で軽減）
-        const riskThreshold = (task.riskFactor / 200) * (1 - luckFactor);
+        // リスク発現チェック（幸運 + 特性で軽減）
+        const riskThreshold = (task.riskFactor / 200) * (1 - luckFactor) * traitRiskModifier;
         if (task.riskFactor > 50 && Math.random() < riskThreshold) {
             issues.push(`タスク「${task.name || task.id}」で問題発生`);
         }
