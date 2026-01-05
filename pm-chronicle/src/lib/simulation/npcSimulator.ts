@@ -23,7 +23,10 @@ export interface YearlySimulationResult {
     deceasedNpcs: Character[];
     promotedNpcs: { npc: Character; oldPosition: PositionTitle; newPosition: PositionTitle }[];
     jobChangedNpcs: { npc: Character; oldCompanyId?: string; newCompanyId?: string }[];
+    marriedNpcs: Character[];
+    newbornNpcs: Character[];
     bankruptCompanies: Company[];
+    acquiredCompanies: { target: Company; acquirer: Company }[];
     newCompanies: Company[];
 }
 
@@ -248,7 +251,10 @@ export function simulateYear(
         deceasedNpcs: [],
         promotedNpcs: [],
         jobChangedNpcs: [],
+        marriedNpcs: [],
+        newbornNpcs: [],
         bankruptCompanies: [],
+        acquiredCompanies: [],
         newCompanies: [],
     };
 
@@ -308,6 +314,16 @@ export function simulateYear(
                 result.jobChangedNpcs.push({ npc, oldCompanyId, newCompanyId });
             }
         }
+
+        // 結婚判定
+        if (checkMarriage(npc, currentYear, seed++)) {
+            result.marriedNpcs.push(npc);
+        }
+
+        // 出産判定
+        if (checkChildbirth(npc, currentYear, seed++)) {
+            result.newbornNpcs.push(npc);
+        }
     }
 
     // 企業処理
@@ -326,6 +342,26 @@ export function simulateYear(
                     npc.status = 'FREELANCE';
                     npc.companyId = undefined;
                 }
+            }
+        }
+    }
+
+    // M&A（買収）判定
+    const activeCompanies = companies.filter(c => c.isActive);
+    for (const acquirer of activeCompanies) {
+        for (const target of activeCompanies) {
+            if (acquirer.id === target.id) continue;
+            if (checkAcquisition(acquirer, target, seed++)) {
+                target.isActive = false;
+                target.acquiredBy = acquirer.id;
+                result.acquiredCompanies.push({ target, acquirer });
+                // 買収された企業のNPCを買収企業に移籍
+                for (const npc of npcs) {
+                    if (npc.companyId === target.id) {
+                        npc.companyId = acquirer.id;
+                    }
+                }
+                break; // 1社は1回のみ買収される
             }
         }
     }

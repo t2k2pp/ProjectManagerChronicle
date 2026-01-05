@@ -101,6 +101,23 @@ export function processTurn(
                 `${yearlyResult.retiredNpcs.length}名が定年退職しました`
             );
         }
+        if (yearlyResult.marriedNpcs.length > 0) {
+            result.events.push(
+                `${yearlyResult.marriedNpcs.map(n => n.name).join(', ')} が結婚しました`
+            );
+        }
+        if (yearlyResult.newbornNpcs.length > 0) {
+            result.events.push(
+                `${yearlyResult.newbornNpcs.length}名に子供が生まれました`
+            );
+        }
+        if (yearlyResult.acquiredCompanies.length > 0) {
+            for (const acq of yearlyResult.acquiredCompanies) {
+                result.events.push(
+                    `${acq.acquirer.name} が ${acq.target.name} を買収しました`
+                );
+            }
+        }
 
         // 歴史イベントチェック
         const historicalEvents = getEventsForYear(year);
