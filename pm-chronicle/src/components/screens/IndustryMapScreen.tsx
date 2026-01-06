@@ -95,8 +95,8 @@ export function IndustryMapScreen({
                                     onSelectCompany?.(company);
                                 }}
                                 className={`text-left p-4 rounded-lg border transition-all ${selectedCompany?.id === company.id
-                                        ? 'border-blue-500 bg-blue-500/20'
-                                        : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
+                                    ? 'border-blue-500 bg-blue-500/20'
+                                    : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
                                     }`}
                             >
                                 <div className="flex items-start justify-between">
@@ -167,7 +167,7 @@ export function IndustryMapScreen({
                                         </div>
                                         <div className="bg-gray-800 p-2 rounded">
                                             <div className="text-xs text-gray-400">成長率</div>
-                                            <div className="text-lg font-bold text-blue-400">{selectedCompany.growthRate}%</div>
+                                            <div className="text-lg font-bold text-blue-400">{(selectedCompany.growthRate * 100).toFixed(1)}%</div>
                                         </div>
                                         <div className="bg-gray-800 p-2 rounded">
                                             <div className="text-xs text-gray-400">働き方</div>
