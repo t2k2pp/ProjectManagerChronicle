@@ -5,6 +5,7 @@
 
 import type { WorldState, Character, Project, Task } from '../../types';
 import { simulateYear } from '../simulation/npcSimulator';
+import { simulateWorldWeek, applyYearlySimulationResult } from '../simulation/worldSimulator';
 import { getEventsForYear } from '../events/historicalEvents';
 import { getProgressModifier, getQualityModifier, getRiskModifier, AGE_TYPES } from '../traits';
 
@@ -147,6 +148,15 @@ export function processTurn(
             result.events.push(`【${event.name}】${event.description}`);
             result.newEvents.push(event.id);
         }
+
+        // 年次シミュレーション結果をWorldStateに反映
+        applyYearlySimulationResult(worldState, yearlyResult);
+    }
+
+    // 週次世界シミュレーション（全NPC・企業が行動）
+    const worldWeekResult = simulateWorldWeek(worldState, week, worldState.seed + week);
+    for (const log of worldWeekResult.logs) {
+        result.events.push(log);
     }
 
     // プロジェクト処理（ポリシー適用）
