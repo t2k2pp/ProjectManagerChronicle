@@ -25,9 +25,17 @@ export interface SaveSlot {
     currentProjectId?: string;
 }
 
+/** セットアップ用一時ワールド */
+export interface SetupWorld {
+    id: number;              // 常に0（シングルトン）
+    worldState: WorldState;
+    createdAt: Date;
+}
+
 /** データベースクラス */
 export class PMChronicleDB extends Dexie {
     saves!: EntityTable<SaveSlot, 'id'>;
+    setupWorlds!: EntityTable<SetupWorld, 'id'>;
     characters!: EntityTable<Character, 'id'>;
     companies!: EntityTable<Company, 'id'>;
     projects!: EntityTable<Project, 'id'>;
@@ -38,8 +46,9 @@ export class PMChronicleDB extends Dexie {
     constructor() {
         super('pm_chronicle_db');
 
-        this.version(1).stores({
+        this.version(2).stores({
             saves: 'id, updatedAt',
+            setupWorlds: 'id',
             characters: 'id, companyId, status, name',
             companies: 'id, category, isActive, name',
             projects: 'id, status',

@@ -17,6 +17,7 @@ import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
 import { checkProjectCompletion as checkTasksComplete } from './lib/projectScore';
 import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/projectEvents';
 import { processTurn, checkProjectFailure, type ProjectPolicy } from './lib/engine/turnProcessor';
+import { saveSetupWorld, getSetupWorld, adjustWorldYear } from './db/repositories/worldRepository';
 import type { Project, Task, Character } from './types';
 import type { ActivityResult } from './lib/activities';
 import './index.css';
@@ -32,8 +33,7 @@ function App() {
     error,
   } = useGameStore();
 
-  // シミュレーション用のワールドと企業リスト（セットアップ画面用）
-  const [setupWorld, setSetupWorld] = useState<typeof worldState>(null);
+  // セットアップ用企業リスト（IndexedDBから取得）
   const [setupCompanies, setSetupCompanies] = useState<typeof worldState extends null ? never : NonNullable<typeof worldState>['companies']>([]);
 
   // 現在のプロジェクトとタスク（仮データ）
@@ -47,17 +47,26 @@ function App() {
   // 方針（ポリシー）ステート
   const [currentPolicy, setCurrentPolicy] = useState<ProjectPolicy>('NORMAL');
 
-  // 初期化
+  // セットアップ画面用ワールド初期化
   useEffect(() => {
-    if (phase === 'SETUP' && setupCompanies.length === 0) {
-      // セットアップ用にワールドを事前生成
-      const tempWorld = generateInitialWorld({
-        startYear: 2020,
-        seed: Date.now(),
-      });
-      setSetupWorld(tempWorld);
-      setSetupCompanies(tempWorld.companies);
-    }
+    const initSetupWorld = async () => {
+      if (phase === 'SETUP' && setupCompanies.length === 0) {
+        // IndexedDBから既存のセットアップワールドを取得
+        let existingWorld = await getSetupWorld();
+
+        if (!existingWorld) {
+          // なければ新規生成してIndexedDBに保存
+          existingWorld = generateInitialWorld({
+            startYear: 2020,
+            seed: Date.now(),
+          });
+          await saveSetupWorld(existingWorld);
+        }
+
+        setSetupCompanies(existingWorld.companies);
+      }
+    };
+    initSetupWorld();
   }, [phase, setupCompanies.length]);
 
   // プレイヤーキャラクター取得
@@ -90,18 +99,21 @@ function App() {
           <SetupScreen
             companies={setupCompanies}
             onStartGame={async (options: GameStartOptions) => {
-              // セットアップ時に生成したワールドを使用し、開始年を調整
-              let world = setupWorld;
-              if (!world || world.startYear !== options.startYear) {
-                // 年が異なる場合のみ再生成（同じ企業リストを維持するため名前で復元）
-                const baseWorld = generateInitialWorld({
+              // IndexedDBからセットアップワールドを取得
+              let world = await getSetupWorld();
+
+              if (!world) {
+                // なければ新規生成
+                world = generateInitialWorld({
                   startYear: options.startYear,
                   seed: Date.now(),
                 });
-                world = baseWorld;
+              } else if (world.startYear !== options.startYear) {
+                // 開始年が異なる場合は年を調整（企業・NPCのIDは維持）
+                world = adjustWorldYear(world, options.startYear);
               }
 
-              // companyIdは直接使用可能（setupWorldと同じため）
+              // companyIdは直接使用可能（同じワールドのため）
               const resolvedCompanyId = options.companyId;
 
               // プレイヤーキャラクター作成
