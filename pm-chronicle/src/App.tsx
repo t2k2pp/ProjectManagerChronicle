@@ -32,7 +32,8 @@ function App() {
     error,
   } = useGameStore();
 
-  // シミュレーション用の企業リスト（セットアップ画面用）
+  // シミュレーション用のワールドと企業リスト（セットアップ画面用）
+  const [setupWorld, setSetupWorld] = useState<typeof worldState>(null);
   const [setupCompanies, setSetupCompanies] = useState<typeof worldState extends null ? never : NonNullable<typeof worldState>['companies']>([]);
 
   // 現在のプロジェクトとタスク（仮データ）
@@ -49,11 +50,12 @@ function App() {
   // 初期化
   useEffect(() => {
     if (phase === 'SETUP' && setupCompanies.length === 0) {
-      // セットアップ用に企業を事前生成
+      // セットアップ用にワールドを事前生成
       const tempWorld = generateInitialWorld({
         startYear: 2020,
         seed: Date.now(),
       });
+      setSetupWorld(tempWorld);
       setSetupCompanies(tempWorld.companies);
     }
   }, [phase, setupCompanies.length]);
@@ -88,21 +90,19 @@ function App() {
           <SetupScreen
             companies={setupCompanies}
             onStartGame={async (options: GameStartOptions) => {
-              // ワールド生成
-              const world = generateInitialWorld({
-                startYear: options.startYear,
-                seed: Date.now(),
-              });
-
-              // 選択した企業名を取得し、新ワールドの企業にマッピング
-              let resolvedCompanyId: string | undefined;
-              if (options.companyId) {
-                const selectedCompanyName = setupCompanies.find(c => c.id === options.companyId)?.name;
-                if (selectedCompanyName) {
-                  const matchedCompany = world.companies.find(c => c.name === selectedCompanyName);
-                  resolvedCompanyId = matchedCompany?.id || world.companies[0]?.id;
-                }
+              // セットアップ時に生成したワールドを使用し、開始年を調整
+              let world = setupWorld;
+              if (!world || world.startYear !== options.startYear) {
+                // 年が異なる場合のみ再生成（同じ企業リストを維持するため名前で復元）
+                const baseWorld = generateInitialWorld({
+                  startYear: options.startYear,
+                  seed: Date.now(),
+                });
+                world = baseWorld;
               }
+
+              // companyIdは直接使用可能（setupWorldと同じため）
+              const resolvedCompanyId = options.companyId;
 
               // プレイヤーキャラクター作成
               const player = createPlayerCharacter(world, {
