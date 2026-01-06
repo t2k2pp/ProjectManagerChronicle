@@ -94,12 +94,22 @@ function App() {
                 seed: Date.now(),
               });
 
+              // 選択した企業名を取得し、新ワールドの企業にマッピング
+              let resolvedCompanyId: string | undefined;
+              if (options.companyId) {
+                const selectedCompanyName = setupCompanies.find(c => c.id === options.companyId)?.name;
+                if (selectedCompanyName) {
+                  const matchedCompany = world.companies.find(c => c.name === selectedCompanyName);
+                  resolvedCompanyId = matchedCompany?.id || world.companies[0]?.id;
+                }
+              }
+
               // プレイヤーキャラクター作成
               const player = createPlayerCharacter(world, {
                 name: options.playerName,
                 gender: options.gender,
                 startType: options.startType,
-                companyId: options.companyId || world.companies[0]?.id,
+                companyId: resolvedCompanyId || (options.startType !== 'FREELANCE' ? world.companies[0]?.id : undefined),
               });
 
               // ワールドにプレイヤーを追加
