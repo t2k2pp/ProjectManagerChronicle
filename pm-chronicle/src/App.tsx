@@ -150,8 +150,15 @@ function App() {
                 { id: 't5', projectId: 'proj-1', name: 'テスト', assigneeId: null, phase: 'TEST', progress: 0, quality: 80, riskFactor: 35, dependencies: ['t4'], isCriticalPath: true, startWeek: 18, endWeek: 20, estimatedWeeks: 3 },
               ]);
 
-              // チームメンバー（NPCから選択）
-              setTeamMembers(worldState.npcs.slice(0, 5));
+              // チームメンバー（プレイヤー + NPCから選択）
+              // 新人〜中堅はプレイヤー自身も開発担当として参加
+              const otherMembers = worldState.npcs.slice(0, 4);
+              if (playerCharacter) {
+                // プレイヤーを先頭に配置（自分自身をアサイン可能に）
+                setTeamMembers([playerCharacter, ...otherMembers]);
+              } else {
+                setTeamMembers(otherMembers);
+              }
 
               setPhase('PM_COCKPIT');
             }}
@@ -194,6 +201,14 @@ function App() {
                 const tasksComplete = checkTasksComplete(currentTasks);
                 const failure = checkProjectFailure(currentProject);
                 const isOverdue = turnResult.week > currentProject.schedule.endWeek;
+
+                // デバッグログ
+                console.log('=== TURN COMPLETE CHECK ===');
+                console.log('currentTasks:', currentTasks);
+                console.log('tasksComplete:', tasksComplete);
+                console.log('currentTasks.length:', currentTasks.length);
+                console.log('failure:', failure);
+                console.log('isOverdue:', isOverdue, 'turnResult.week:', turnResult.week, 'endWeek:', currentProject.schedule.endWeek);
 
                 if (tasksComplete.isComplete) {
                   // プロジェクト成功

@@ -312,13 +312,19 @@ export function checkProjectFailure(project: Project): {
     failed: boolean;
     reason?: string;
 } {
-    // 進捗遅延チェック
-    if (project.evm.spi < 0.5) {
+    // 序盤（20%未満の進捗）では失敗判定を行わない
+    const progressRatio = project.schedule.currentWeek / (project.schedule.endWeek - project.schedule.startWeek + 1);
+    if (progressRatio < 0.2) {
+        return { failed: false };
+    }
+
+    // 進捗遅延チェック（閾値緩和: 0.5 → 0.3）
+    if (project.evm.spi < 0.3) {
         return { failed: true, reason: 'スケジュール遅延が深刻です' };
     }
 
-    // コスト超過チェック
-    if (project.evm.cpi < 0.5) {
+    // コスト超過チェック（閾値緩和: 0.5 → 0.3）
+    if (project.evm.cpi < 0.3) {
         return { failed: true, reason: 'コスト超過が深刻です' };
     }
 
