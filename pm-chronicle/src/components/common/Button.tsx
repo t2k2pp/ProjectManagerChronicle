@@ -1,5 +1,6 @@
 /**
  * Buttonコンポーネント
+ * index.cssで定義されたデザイントークンを使用
  */
 
 import React from 'react';
@@ -20,19 +21,18 @@ export function Button({
     children,
     ...props
 }: ButtonProps) {
-    const baseClasses = 'font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2';
-
+    // index.cssで定義されたデザイントークンクラスを使用
     const variantClasses = {
-        primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:scale-105',
-        secondary: 'bg-gray-600 hover:bg-gray-700 text-white shadow',
-        danger: 'bg-red-600 hover:bg-red-700 text-white shadow-lg',
-        ghost: 'bg-transparent hover:bg-white/10 text-white',
+        primary: 'btn-primary',
+        secondary: 'btn-secondary',
+        danger: 'btn-danger',
+        ghost: 'btn-ghost',
     };
 
     const sizeClasses = {
-        sm: 'px-3 py-1.5 text-sm',
-        md: 'px-6 py-3 text-base',
-        lg: 'px-8 py-4 text-lg',
+        sm: 'text-sm !px-3 !py-1.5',
+        md: '',  // デフォルトサイズはCSSクラスで定義済み
+        lg: 'text-lg !px-8 !py-4',
     };
 
     const disabledClasses = disabled || loading
@@ -41,7 +41,7 @@ export function Button({
 
     return (
         <button
-            className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${disabledClasses} ${className}`}
+            className={`${variantClasses[variant]} ${sizeClasses[size]} ${disabledClasses} flex items-center justify-center gap-2 ${className}`}
             disabled={disabled || loading}
             {...props}
         >

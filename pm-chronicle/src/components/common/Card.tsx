@@ -1,5 +1,6 @@
 /**
  * Cardコンポーネント
+ * index.cssで定義されたデザイントークンを使用
  */
 
 import React from 'react';
@@ -17,23 +18,22 @@ export function Card({
     variant = 'default',
     padding = 'md',
 }: CardProps) {
-    const baseClasses = 'rounded-xl';
-
+    // index.cssで定義されたデザイントークンクラスを使用
     const variantClasses = {
-        default: 'bg-gray-800 shadow-lg border border-gray-700',
-        glass: 'bg-white/10 backdrop-blur-lg border border-white/20 shadow-xl',
-        bordered: 'bg-transparent border-2 border-gray-600',
+        default: 'card',
+        glass: 'glass-card',
+        bordered: 'card-bordered',
     };
 
     const paddingClasses = {
-        none: '',
-        sm: 'p-3',
-        md: 'p-6',
-        lg: 'p-8',
+        none: '!p-0',
+        sm: '!p-3',
+        md: '',  // デフォルトはCSSクラスで定義済み
+        lg: '!p-8',
     };
 
     return (
-        <div className={`${baseClasses} ${variantClasses[variant]} ${paddingClasses[padding]} ${className}`}>
+        <div className={`${variantClasses[variant]} ${paddingClasses[padding]} ${className}`}>
             {children}
         </div>
     );

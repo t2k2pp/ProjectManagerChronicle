@@ -59,7 +59,7 @@ body {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background-color: #2563eb;
+  background-color: var(--color-primary);
   color: white;
   font-weight: 700;
   border-radius: 0.5rem;
@@ -70,7 +70,7 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: #1d4ed8;
+  background-color: var(--color-primary-800);
   transform: scale(1.05);
 }
 
@@ -90,12 +90,51 @@ body {
   background-color: #374151;
 }
 
+.btn-danger {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-danger);
+  color: white;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+  transform: scale(1.05);
+}
+
+.btn-ghost {
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: white;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .card {
   background-color: #1f2937;
   border-radius: 0.75rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
   border: 1px solid #374151;
+}
+
+.card-bordered {
+  background-color: transparent;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 2px solid #4b5563;
 }
 
 .badge {
