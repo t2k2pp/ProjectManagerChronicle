@@ -1,5 +1,6 @@
 /**
  * ツールチップコンポーネント
+ * index.cssで定義されたデザイントークンを使用
  */
 
 import { useState, type ReactNode } from 'react';
@@ -57,7 +58,7 @@ export function Tooltip({
                     className={`absolute z-50 ${positionStyles[position]} pointer-events-none`}
                     role="tooltip"
                 >
-                    <div className="bg-gray-800 text-white text-sm px-3 py-2 rounded-lg shadow-xl max-w-xs">
+                    <div className="bg-surface text-white text-sm px-3 py-2 rounded-lg shadow-xl max-w-xs">
                         {content}
                     </div>
                     {/* Arrow */}
@@ -79,9 +80,10 @@ interface HelpTooltipProps {
 export function HelpTooltip({ content, position = 'top' }: HelpTooltipProps) {
     return (
         <Tooltip content={content} position={position}>
-            <span className="inline-flex items-center justify-center w-4 h-4 text-xs text-gray-400 bg-gray-700 rounded-full cursor-help hover:bg-gray-600">
+            <span className="inline-flex items-center justify-center w-4 h-4 text-xs text-muted bg-surface-light rounded-full cursor-help hover:bg-surface">
                 ?
             </span>
         </Tooltip>
     );
 }
+

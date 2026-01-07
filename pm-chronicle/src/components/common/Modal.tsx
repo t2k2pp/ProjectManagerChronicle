@@ -66,7 +66,7 @@ export function Modal({
 
             {/* モーダル本体 */}
             <div
-                className={`relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col`}
+                className={`relative bg-surface-dark border border-gray-700 rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col`}
             >
                 {/* ヘッダー */}
                 {title && (

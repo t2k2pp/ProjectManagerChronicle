@@ -1,5 +1,6 @@
 /**
  * Badgeコンポーネント
+ * index.cssで定義されたデザイントークンを使用
  */
 
 import React from 'react';
@@ -17,24 +18,24 @@ export function Badge({
     size = 'md',
     className = '',
 }: BadgeProps) {
-    const baseClasses = 'inline-flex items-center font-bold uppercase rounded-full';
-
+    // index.cssで定義されたデザイントークンクラスを使用
     const variantClasses = {
-        default: 'bg-gray-600 text-gray-100',
-        success: 'bg-green-100 text-green-800',
-        warning: 'bg-yellow-100 text-yellow-800',
-        danger: 'bg-red-100 text-red-800',
-        info: 'bg-blue-100 text-blue-800',
+        default: 'badge',
+        success: 'badge badge-success',
+        warning: 'badge badge-warning',
+        danger: 'badge badge-danger',
+        info: 'badge badge-info',
     };
 
     const sizeClasses = {
-        sm: 'px-2 py-0.5 text-xs',
-        md: 'px-3 py-1 text-xs',
+        sm: '!px-2 !py-0.5 !text-xs',
+        md: '',  // デフォルトはCSSクラスで定義済み
     };
 
     return (
-        <span className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}>
+        <span className={`${variantClasses[variant]} ${sizeClasses[size]} ${className}`}>
             {children}
         </span>
     );
 }
+

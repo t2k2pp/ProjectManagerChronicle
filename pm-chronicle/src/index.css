@@ -48,7 +48,111 @@ body {
   min-height: 100vh;
 }
 
-/* カスタムユーティリティクラス */
+/* ========================
+   セマンティッククラス
+   ======================== */
+
+/* 背景色 - サーフェス */
+.bg-surface {
+  background-color: #1f2937;
+}
+
+.bg-surface-light {
+  background-color: #374151;
+}
+
+.bg-surface-dark {
+  background-color: #111827;
+}
+
+.bg-surface-glass {
+  background-color: rgba(31, 41, 55, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+/* 選択状態 */
+.selected {
+  background-color: rgba(30, 58, 138, 0.2);
+  border-color: var(--color-primary);
+}
+
+.active {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+/* インタラクティブ要素 */
+.interactive {
+  border: 1px solid #374151;
+  background-color: rgba(31, 41, 55, 0.5);
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.interactive:hover {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.interactive.selected {
+  background-color: rgba(30, 58, 138, 0.2);
+  border-color: var(--color-primary);
+}
+
+.interactive.selected:hover {
+  background-color: rgba(30, 58, 138, 0.3);
+}
+
+/* フォーム要素 */
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  color: white;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.input::placeholder {
+  color: #6b7280;
+}
+
+/* テキストカラー */
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-secondary {
+  color: var(--color-secondary);
+}
+
+.text-success {
+  color: var(--color-success);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+.text-danger {
+  color: var(--color-danger);
+}
+
+.text-muted {
+  color: #9ca3af;
+}
+
+/* ========================
+   カスタムユーティリティクラス
+   ======================== */
+
 .glass-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
@@ -158,4 +262,9 @@ body {
 .badge-danger {
   background-color: #fee2e2;
   color: #991b1b;
+}
+
+.badge-info {
+  background-color: #dbeafe;
+  color: #1e40af;
 }
