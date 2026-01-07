@@ -65,12 +65,7 @@ export function ActivitySelector({
                             key={activity.id}
                             onClick={() => setSelectedActivity(activity)}
                             disabled={!isAvailable}
-                            className={`text-left p-3 rounded-lg border transition-all ${isSelected
-                                    ? 'border-blue-500 bg-blue-500/20'
-                                    : isAvailable
-                                        ? 'border-gray-700 bg-gray-800 hover:bg-gray-700'
-                                        : 'border-gray-800 bg-gray-900 opacity-50 cursor-not-allowed'
-                                }`}
+                            className={`interactive text-left p-3 rounded-lg ${isSelected ? 'selected' : ''} ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <div className="flex justify-between items-start mb-1">
                                 <span className="font-medium text-white text-sm">{activity.label}</span>
@@ -87,7 +82,7 @@ export function ActivitySelector({
                                     )}
                                 </div>
                             </div>
-                            <p className="text-xs text-gray-400 mb-2">{activity.description}</p>
+                            <p className="text-xs text-muted mb-2">{activity.description}</p>
                             <div className="flex gap-2 text-xs text-gray-500">
                                 <span>⏱ {activity.duration}h</span>
                                 <span>💪 {activity.staminaCost > 0 ? `-${activity.staminaCost}` : `+${-activity.staminaCost}`}</span>
@@ -100,16 +95,13 @@ export function ActivitySelector({
             {/* 参加者選択 */}
             {selectedActivity && selectedActivity.effects.relationshipBonus && (
                 <div className="mb-4">
-                    <h3 className="text-sm text-gray-400 mb-2">参加者を選択</h3>
+                    <h3 className="text-sm text-muted mb-2">参加者を選択</h3>
                     <div className="flex flex-wrap gap-2">
                         {teammates.slice(0, 8).map(teammate => (
                             <button
                                 key={teammate.id}
                                 onClick={() => toggleParticipant(teammate.id)}
-                                className={`px-3 py-1 text-sm rounded-full transition-all ${selectedParticipants.includes(teammate.id)
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                    }`}
+                                className={`px-3 py-1 text-sm rounded-full transition-all ${selectedParticipants.includes(teammate.id) ? 'active' : 'bg-surface-light text-gray-300 hover:bg-surface'}`}
                             >
                                 {teammate.name}
                             </button>
@@ -121,8 +113,8 @@ export function ActivitySelector({
             {/* 結果表示 */}
             {result && (
                 <div className={`mb-4 p-3 rounded-lg ${result.success
-                        ? 'bg-green-500/20 border border-green-500'
-                        : 'bg-red-500/20 border border-red-500'
+                    ? 'bg-green-500/20 border border-green-500'
+                    : 'bg-red-500/20 border border-red-500'
                     }`}>
                     <p className={`text-sm ${result.success ? 'text-green-400' : 'text-red-400'}`}>
                         {result.message}

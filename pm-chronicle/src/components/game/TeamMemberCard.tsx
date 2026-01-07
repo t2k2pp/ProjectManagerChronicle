@@ -30,21 +30,18 @@ export function TeamMemberCard({
 
     // スタミナ割合
     const staminaPercent = (member.stamina.current / member.stamina.max) * 100;
-    const staminaColor = staminaPercent > 60 ? 'bg-green-500' : staminaPercent > 30 ? 'bg-yellow-500' : 'bg-red-500';
+    const staminaColor = staminaPercent > 60 ? 'bg-[var(--color-success)]' : staminaPercent > 30 ? 'bg-[var(--color-warning)]' : 'bg-[var(--color-danger)]';
 
     return (
         <div
             onClick={onClick}
-            className={`p-3 rounded-lg border transition-all cursor-pointer ${isSelected
-                ? 'border-blue-500 bg-blue-500/20'
-                : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
-                }`}
+            className={`interactive p-3 rounded-lg ${isSelected ? 'selected' : ''}`}
         >
             {/* 名前と役職 */}
             <div className="flex justify-between items-start mb-2">
                 <div>
                     <div className="font-bold text-white">{member.name}</div>
-                    <div className="text-xs text-gray-400">{getPositionLabel(member.position.title)}</div>
+                    <div className="text-xs text-muted">{getPositionLabel(member.position.title)}</div>
                 </div>
                 <Badge variant={reputation.type === 'TECH' ? 'info' : reputation.type === 'SOCIAL' ? 'warning' : 'default'}>
                     {reputation.typeLabel}
@@ -53,30 +50,30 @@ export function TeamMemberCard({
 
             {/* 基本情報 */}
             <div className="grid grid-cols-3 gap-2 text-xs mb-2">
-                <div className="text-gray-400">
+                <div className="text-muted">
                     年齢: <span className="text-white">{age}歳</span>
                 </div>
-                <div className="text-gray-400">
+                <div className="text-muted">
                     {member.gender === 'M' ? '♂' : '♀'}
                 </div>
-                <div className="text-gray-400">
+                <div className="text-muted">
                     経験: <span className="text-white">{experienceYears}年</span>
                 </div>
             </div>
 
             {/* 評判（スター） */}
             <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-gray-400">評判:</span>
+                <span className="text-xs text-muted">評判:</span>
                 <span className="text-sm">{getStarsDisplay(reputation.stars)}</span>
             </div>
 
             {/* スタミナバー */}
             <div className="mb-2">
                 <div className="flex justify-between text-xs mb-1">
-                    <span className="text-gray-400">スタミナ</span>
+                    <span className="text-muted">スタミナ</span>
                     <span className="text-white">{member.stamina.current}/{member.stamina.max}</span>
                 </div>
-                <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-surface-light rounded-full overflow-hidden">
                     <div
                         className={`h-full ${staminaColor}`}
                         style={{ width: `${staminaPercent}%` }}
@@ -91,7 +88,7 @@ export function TeamMemberCard({
                         e.stopPropagation();
                         onAssign?.();
                     }}
-                    className="w-full mt-2 px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+                    className="btn-primary w-full mt-2 !px-3 !py-1.5 !text-xs"
                 >
                     アサイン
                 </button>

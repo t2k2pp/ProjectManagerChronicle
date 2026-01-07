@@ -27,10 +27,10 @@ export function EventDialog({
             <Card variant="glass" padding="lg" className="max-w-lg w-full animate-fade-in">
                 {/* ヘッダー */}
                 <div className="flex items-center gap-3 mb-4">
-                    <div className={`px-2 py-1 rounded text-xs font-bold ${severityInfo.color} bg-gray-800`}>
+                    <div className={`px-2 py-1 rounded text-xs font-bold ${severityInfo.color} bg-surface`}>
                         {severityInfo.label}
                     </div>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-muted">
                         {EVENT_TYPE_LABELS[event.type]}
                     </span>
                 </div>
@@ -55,7 +55,7 @@ export function EventDialog({
                         <div className="font-medium text-green-400">
                             ✓ {event.options.accept.label}
                         </div>
-                        <div className="text-xs text-gray-400 mt-1">
+                        <div className="text-xs text-muted mt-1">
                             {formatEffect(event.options.accept.effect)}
                         </div>
                     </button>
@@ -64,12 +64,12 @@ export function EventDialog({
                     {event.options.negotiate && onNegotiate && (
                         <button
                             onClick={onNegotiate}
-                            className="w-full p-3 bg-blue-600/20 border border-blue-500 rounded-lg text-left hover:bg-blue-600/30 transition-colors"
+                            className="w-full p-3 selected border rounded-lg text-left hover:bg-[var(--color-primary)]/30 transition-colors"
                         >
                             <div className="font-medium text-blue-400">
                                 🃏 {event.options.negotiate.label}
                             </div>
-                            <div className="text-xs text-gray-400 mt-1">
+                            <div className="text-xs text-muted mt-1">
                                 カードバトルで有利な条件を勝ち取る
                             </div>
                         </button>
@@ -83,7 +83,7 @@ export function EventDialog({
                         <div className="font-medium text-red-400">
                             ✕ {event.options.reject.label}
                         </div>
-                        <div className="text-xs text-gray-400 mt-1">
+                        <div className="text-xs text-muted mt-1">
                             {formatEffect(event.options.reject.effect)}
                         </div>
                     </button>

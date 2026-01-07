@@ -1,12 +1,12 @@
 /**
- * パフォーマンス最適化ユーティリティ
+ * パフォーマンス最適化ユーチE��リチE��
  */
 
 import React, { memo, useMemo, useCallback, type ComponentType, type ReactNode } from 'react';
 
 /**
- * コンポーネントメモ化ヘルパー
- * 不要な再レンダリングを防ぐ
+ * コンポ�Eネントメモ化�Eルパ�E
+ * 不要な再レンダリングを防ぁE
  */
 export function withMemo<P extends object>(
     Component: ComponentType<P>,
@@ -18,16 +18,16 @@ export function withMemo<P extends object>(
 }
 
 /**
- * 重いリスト用の仮想化設定
+ * 重いリスト用の仮想化設宁E
  */
 export const VIRTUALIZATION_CONFIG = {
     overscan: 5,
     estimatedItemSize: 50,
-    threshold: 100, // この数以上でバーチャル化推奨
+    threshold: 100, // こ�E数以上でバ�Eチャル化推奨
 };
 
 /**
- * IndexedDBアクセスをバッチ処理
+ * IndexedDBアクセスをバチE��処琁E
  */
 export function batchDBOperations<T>(
     operations: (() => Promise<T>)[],
@@ -39,7 +39,7 @@ export function batchDBOperations<T>(
         await prev;
         results.push(await op());
 
-        // バッチごとに短い休止
+        // バッチごとに短ぁE��止
         if (index > 0 && index % batchSize === 0) {
             await new Promise(resolve => setTimeout(resolve, 0));
         }
@@ -49,7 +49,7 @@ export function batchDBOperations<T>(
 }
 
 /**
- * 再レンダリング検出用デバッグフック
+ * 再レンダリング検�E用チE��チE��フック
  */
 export function useRenderCount(componentName: string): void {
     if (import.meta.env.DEV) {
@@ -60,7 +60,7 @@ export function useRenderCount(componentName: string): void {
 }
 
 /**
- * 高コストな計算結果のキャッシュ
+ * 高コストな計算結果のキャチE��ュ
  */
 export function useMemoizedValue<T>(
     factory: () => T,
@@ -79,7 +79,7 @@ export function useStableCallback<T extends (...args: unknown[]) => unknown>(
 }
 
 /**
- * 遅延読み込みラッパー
+ * 遁E��読み込みラチE��ー
  */
 export function LazyComponent({
     children,

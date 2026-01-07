@@ -82,10 +82,7 @@ export function WorkStyleSelector({
                         <button
                             key={style}
                             onClick={() => setSelectedStyle(style)}
-                            className={`text-left p-3 rounded-lg border transition-all ${isSelected
-                                    ? 'border-blue-500 bg-blue-500/20'
-                                    : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
-                                }`}
+                            className={`interactive text-left p-3 rounded-lg ${isSelected ? 'selected' : ''}`}
                         >
                             <div className="flex justify-between items-start mb-1">
                                 <span className="font-bold text-white text-sm">{config.label}</span>
@@ -93,7 +90,7 @@ export function WorkStyleSelector({
                                     {getCostDisplay(style)}
                                 </Badge>
                             </div>
-                            <p className="text-xs text-gray-400 mb-2">{config.description}</p>
+                            <p className="text-xs text-muted mb-2">{config.description}</p>
                             <div className="flex gap-4 text-xs">
                                 <span className="text-gray-500">
                                     効率: <span className={getEfficiencyColor(config.efficiency)}>{config.efficiency}</span>
@@ -109,17 +106,14 @@ export function WorkStyleSelector({
 
             {/* 研修選択時のスキル選択 */}
             {selectedStyle === 'TRAINING' && (
-                <div className="mb-4 p-3 bg-gray-800 rounded-lg">
-                    <label className="text-sm text-gray-400 mb-2 block">研修対象スキル</label>
+                <div className="mb-4 p-3 bg-surface rounded-lg">
+                    <label className="text-sm text-muted mb-2 block">研修対象スキル</label>
                     <div className="flex flex-wrap gap-2">
                         {BLUE_SKILL_OPTIONS.map(opt => (
                             <button
                                 key={opt.key}
                                 onClick={() => setTargetSkill(opt.key)}
-                                className={`px-3 py-1 text-sm rounded ${targetSkill === opt.key
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                    }`}
+                                className={`px-3 py-1 text-sm rounded ${targetSkill === opt.key ? 'active' : 'bg-surface-light text-gray-300 hover:bg-surface'}`}
                             >
                                 {opt.label}
                             </button>
@@ -130,7 +124,7 @@ export function WorkStyleSelector({
 
             {/* 結果表示 */}
             {lastResult && (
-                <div className={`mb-4 p-3 rounded-lg ${lastResult.success ? 'bg-green-500/20 border border-green-500' : 'bg-gray-800'}`}>
+                <div className={`mb-4 p-3 rounded-lg ${lastResult.success ? 'bg-green-500/20 border border-green-500' : 'bg-surface'}`}>
                     <p className={`text-sm ${lastResult.success ? 'text-green-400' : 'text-gray-400'}`}>
                         {lastResult.success ? '🎉 ' : ''}{lastResult.message}
                     </p>
