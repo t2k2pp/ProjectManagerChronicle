@@ -48,7 +48,7 @@ export function OfficeView({
     return (
         <div className="space-y-4">
             {/* チームサマリー */}
-            <div className="flex gap-4 p-3 bg-gray-800/50 rounded-lg">
+            <div className="flex gap-4 p-3 bg-surface-glass rounded-lg">
                 <div className="flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full bg-green-500"></span>
                     <span className="text-sm text-gray-300">良好: {healthyMembers.length}</span>
@@ -69,8 +69,8 @@ export function OfficeView({
                     <div
                         key={character.id}
                         className={`transition-transform ${selectedCharacterId === character.id
-                                ? 'ring-2 ring-blue-500 rounded-xl scale-105'
-                                : ''
+                            ? 'ring-2 ring-blue-500 rounded-xl scale-105'
+                            : ''
                             }`}
                     >
                         <CharacterCard

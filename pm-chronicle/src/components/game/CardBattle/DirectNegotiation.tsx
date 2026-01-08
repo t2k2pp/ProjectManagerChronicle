@@ -116,7 +116,7 @@ export function DirectNegotiation({
                 </Card>
 
                 {/* 対戦相手情報 */}
-                <div className="flex items-center gap-4 p-3 bg-gray-800 rounded-lg">
+                <div className="flex items-center gap-4 p-3 bg-surface rounded-lg">
                     <div className="text-3xl">🧑‍💼</div>
                     <div>
                         <div className="font-bold text-white">{opponent.name}</div>
@@ -136,7 +136,7 @@ export function DirectNegotiation({
                                 onChange={(e) => setStatement(e.target.value)}
                                 placeholder="例: このプロジェクトの成功には、チームのスキルアップが不可欠です。なぜなら..."
                                 rows={5}
-                                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                                className="input"
                                 disabled={isLoading}
                             />
                             <div className="flex justify-between mt-1 text-xs text-gray-500">

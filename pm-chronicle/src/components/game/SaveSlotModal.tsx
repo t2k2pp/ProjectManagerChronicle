@@ -102,10 +102,7 @@ export function SaveSlotModal({
                                 key={slot.slotNumber}
                                 onClick={() => handleSlotClick(slot)}
                                 disabled={mode === 'load' && slot.isEmpty}
-                                className={`w-full text-left p-4 rounded-lg border transition-all ${slot.isEmpty
-                                    ? 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
-                                    : 'border-blue-500/50 bg-blue-500/10 hover:bg-blue-500/20'
-                                    } ${mode === 'load' && slot.isEmpty ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                className={`w-full text-left p-4 rounded-lg border transition-all ${slot.isEmpty ? 'interactive' : 'selected'} ${mode === 'load' && slot.isEmpty ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                             >
                                 <div className="flex justify-between items-center">
                                     <div>
@@ -118,7 +115,7 @@ export function SaveSlotModal({
                                             )}
                                         </div>
                                         {!slot.isEmpty && (
-                                            <div className="text-sm text-gray-400 mt-1">
+                                            <div className="text-sm text-muted mt-1">
                                                 <span>{slot.playerName}</span>
                                                 <span className="mx-2">|</span>
                                                 <span>{slot.currentYear}年 第{slot.currentWeek}週</span>
@@ -158,7 +155,7 @@ export function SaveSlotModal({
                                         <div className="font-bold text-white">
                                             🔄 オートセーブから再開
                                         </div>
-                                        <div className="text-sm text-gray-400 mt-1">
+                                        <div className="text-sm text-muted mt-1">
                                             最後のオートセーブデータから続ける
                                         </div>
                                     </div>

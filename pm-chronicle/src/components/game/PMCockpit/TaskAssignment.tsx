@@ -77,9 +77,9 @@ function TaskDropZone({
     return (
         <div
             ref={setNodeRef}
-            className={`bg-gray-800 rounded-lg p-3 border transition-colors ${isOver
-                    ? 'border-blue-500 bg-blue-500/10'
-                    : 'border-gray-700'
+            className={`bg-surface rounded-lg p-3 border transition-colors ${isOver
+                ? 'selected'
+                : 'border-gray-700'
                 }`}
         >
             <div className="flex justify-between items-start mb-2">
@@ -113,8 +113,8 @@ function TaskDropZone({
             ) : (
                 <div
                     className={`border-2 border-dashed rounded-lg p-3 text-center text-sm transition-colors ${isOver
-                            ? 'border-blue-500 text-blue-400 bg-blue-500/10'
-                            : 'border-gray-600 text-gray-500'
+                        ? 'border-blue-500 text-blue-400 bg-blue-500/10'
+                        : 'border-gray-600 text-gray-500'
                         }`}
                 >
                     {isOver ? 'ここにドロップ！' : 'メンバーをドラッグ'}

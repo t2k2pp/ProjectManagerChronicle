@@ -53,7 +53,7 @@ export function NegotiationDialog({
         <Modal isOpen={isOpen} onClose={onClose} title="休暇交渉" size="md">
             <div className="space-y-4">
                 {/* キャラクター情報 */}
-                <div className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg">
+                <div className="flex items-center gap-4 p-4 bg-surface rounded-lg">
                     <div className="text-4xl">{emoji}</div>
                     <div>
                         <div className="text-lg font-bold text-white">{character.name}</div>

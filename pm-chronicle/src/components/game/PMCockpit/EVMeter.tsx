@@ -138,13 +138,13 @@ export function EVMeter({ evm, showLabels = true, size = 'md' }: EVMeterProps) {
             <div className="text-center">
                 <Gauge value={evm.spi} label="SPI" size={gaugeSize} />
                 {showLabels && (
-                    <div className="text-xs text-gray-400 mt-1">スケジュール効率</div>
+                    <div className="text-xs text-muted mt-1">スケジュール効率</div>
                 )}
             </div>
             <div className="text-center">
                 <Gauge value={evm.cpi} label="CPI" size={gaugeSize} />
                 {showLabels && (
-                    <div className="text-xs text-gray-400 mt-1">コスト効率</div>
+                    <div className="text-xs text-muted mt-1">コスト効率</div>
                 )}
             </div>
         </div>
@@ -156,8 +156,8 @@ export function EVMPanel({ evm }: { evm: EVMState }) {
     const formatValue = (v: number) => `${(v * 100).toFixed(0)}%`;
 
     return (
-        <div className="bg-gray-800/50 rounded-lg p-4">
-            <div className="text-sm text-gray-400 mb-3">EVM指標</div>
+        <div className="bg-surface-glass rounded-lg p-4">
+            <div className="text-sm text-muted mb-3">EVM指標</div>
             <div className="grid grid-cols-2 gap-3">
                 <div className="text-center">
                     <div className="text-2xl font-bold" style={{ color: getGaugeColor(evm.spi) }}>

@@ -21,7 +21,7 @@ const POLICY_INFO: Record<WeeklyPolicy, { label: string; desc: string; icon: str
         label: '通常',
         desc: 'バランスの取れた進行',
         icon: '⚖️',
-        color: 'bg-blue-600 hover:bg-blue-700',
+        color: 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-800)]',
     },
     QUALITY: {
         label: '品質重視',
@@ -56,11 +56,11 @@ export function TurnControlPanel({
     };
 
     return (
-        <div className="bg-gray-800/80 backdrop-blur border-t border-gray-700 p-4">
+        <div className="bg-surface-glass border-t border-gray-700 p-4">
             <div className="flex items-center justify-between gap-4">
                 {/* 週数表示 */}
                 <div className="flex-shrink-0">
-                    <div className="text-sm text-gray-400">プロジェクト進捗</div>
+                    <div className="text-sm text-muted">プロジェクト進捗</div>
                     <div className="flex items-center gap-3">
                         <span className="text-2xl font-bold text-white">Week {currentWeek}</span>
                         <span className="text-gray-500">/ {totalWeeks}</span>
@@ -69,10 +69,9 @@ export function TurnControlPanel({
 
                 {/* 進捗バー */}
                 <div className="flex-1 max-w-md">
-                    <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-3 bg-surface-light rounded-full overflow-hidden">
                         <div
-                            className={`h-full rounded-full transition-all duration-500 ${progress >= 80 ? 'bg-red-500' : progress >= 50 ? 'bg-yellow-500' : 'bg-green-500'
-                                }`}
+                            className={`h-full rounded-full transition-all duration-500 ${progress >= 80 ? 'bg-[var(--color-danger)]' : progress >= 50 ? 'bg-[var(--color-warning)]' : 'bg-[var(--color-success)]'}`}
                             style={{ width: `${progress}%` }}
                         />
                     </div>
@@ -95,7 +94,7 @@ export function TurnControlPanel({
                     </button>
 
                     {showPolicySelect && (
-                        <div className="absolute bottom-full right-0 mb-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-2 w-64 z-10">
+                        <div className="absolute bottom-full right-0 mb-2 bg-surface border border-gray-700 rounded-lg shadow-xl p-2 w-64 z-10">
                             {(Object.keys(POLICY_INFO) as WeeklyPolicy[]).map(policy => (
                                 <button
                                     key={policy}
@@ -104,8 +103,8 @@ export function TurnControlPanel({
                                         setShowPolicySelect(false);
                                     }}
                                     className={`w-full text-left px-3 py-2 rounded-lg flex items-start gap-3 transition ${selectedPolicy === policy
-                                            ? 'bg-gray-700'
-                                            : 'hover:bg-gray-700/50'
+                                        ? 'bg-gray-700'
+                                        : 'hover:bg-gray-700/50'
                                         }`}
                                 >
                                     <span className="text-xl">{POLICY_INFO[policy].icon}</span>

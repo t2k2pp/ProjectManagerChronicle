@@ -46,13 +46,12 @@ export function CharacterCard({
     isDraggable = false,
 }: CharacterCardProps) {
     const staminaRatio = character.stamina.current / character.stamina.max;
-    const staminaColor = staminaRatio >= 0.5 ? 'bg-green-500' : staminaRatio >= 0.2 ? 'bg-yellow-500' : 'bg-red-500';
+    const staminaColor = staminaRatio >= 0.5 ? 'bg-[var(--color-success)]' : staminaRatio >= 0.2 ? 'bg-[var(--color-warning)]' : 'bg-[var(--color-danger)]';
 
     if (compact) {
         return (
             <div
-                className={`flex items-center gap-2 p-2 bg-gray-800 rounded-lg ${isDraggable ? 'cursor-grab hover:bg-gray-700' : ''
-                    } ${onClick ? 'cursor-pointer hover:bg-gray-700' : ''}`}
+                className={`flex items-center gap-2 p-2 bg-surface rounded-lg ${isDraggable ? 'cursor-grab hover:bg-surface-light' : ''} ${onClick ? 'cursor-pointer hover:bg-surface-light' : ''}`}
                 onClick={onClick}
                 draggable={isDraggable}
             >
@@ -62,7 +61,7 @@ export function CharacterCard({
                         {character.name}
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="flex-1 h-1 bg-surface-light rounded-full overflow-hidden">
                             <div
                                 className={`h-full ${staminaColor}`}
                                 style={{ width: `${staminaRatio * 100}%` }}
@@ -80,8 +79,7 @@ export function CharacterCard({
     // フル表示
     return (
         <div
-            className={`bg-gray-800 rounded-xl p-4 border border-gray-700 ${isDraggable ? 'cursor-grab hover:border-blue-500' : ''
-                } ${onClick ? 'cursor-pointer hover:border-blue-500' : ''}`}
+            className={`bg-surface rounded-xl p-4 border border-gray-700 ${isDraggable ? 'cursor-grab hover:border-[var(--color-primary)]' : ''} ${onClick ? 'cursor-pointer hover:border-[var(--color-primary)]' : ''}`}
             onClick={onClick}
             draggable={isDraggable}
         >
@@ -89,7 +87,7 @@ export function CharacterCard({
             <div className="flex items-start justify-between mb-3">
                 <div>
                     <h4 className="text-white font-bold">{character.name}</h4>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-muted">
                         {getPositionName(character.position.title)}
                     </p>
                 </div>
@@ -102,7 +100,7 @@ export function CharacterCard({
                     <span>スタミナ</span>
                     <span>{character.stamina.current}/{character.stamina.max}</span>
                 </div>
-                <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-2 bg-surface-light rounded-full overflow-hidden">
                     <div
                         className={`h-full ${staminaColor} transition-all duration-300`}
                         style={{ width: `${staminaRatio * 100}%` }}

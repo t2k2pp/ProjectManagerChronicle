@@ -168,7 +168,7 @@ export function BattleField({
 
             {/* 中央：ログエリア */}
             <div className="flex-1 overflow-y-auto p-4">
-                <div className="bg-gray-800/50 rounded-lg p-4 h-full">
+                <div className="bg-surface-glass rounded-lg p-4 h-full">
                     <div className="space-y-1 text-sm">
                         {log.slice(-8).map((entry, i) => (
                             <div key={i} className="text-gray-300">{entry}</div>
@@ -183,7 +183,7 @@ export function BattleField({
             </div>
 
             {/* 手札 */}
-            <div className="bg-gray-800/80 border-t border-gray-700">
+            <div className="bg-surface-glass border-t border-gray-700">
                 <CardHand
                     cards={playerHand}
                     selectedCardId={selectedCard?.id}

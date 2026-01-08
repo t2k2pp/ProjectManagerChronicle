@@ -71,7 +71,7 @@ export function StatusDisplay({ character, showDetails = true }: StatusDisplayPr
             {/* 詳細情報 */}
             {showDetails && (
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-800/50 rounded-lg p-3">
+                    <div className="bg-surface-glass rounded-lg p-3">
                         <div className="text-xs text-gray-400 mb-1">技術スキル</div>
                         <div className="flex flex-wrap gap-1">
                             {character.techSkills.length > 0 ? (
@@ -84,7 +84,7 @@ export function StatusDisplay({ character, showDetails = true }: StatusDisplayPr
                         </div>
                     </div>
 
-                    <div className="bg-gray-800/50 rounded-lg p-3">
+                    <div className="bg-surface-glass rounded-lg p-3">
                         <div className="text-xs text-gray-400 mb-1">特性</div>
                         <div className="flex flex-wrap gap-1">
                             {character.traits.length > 0 ? (
@@ -97,7 +97,7 @@ export function StatusDisplay({ character, showDetails = true }: StatusDisplayPr
                         </div>
                     </div>
 
-                    <div className="bg-gray-800/50 rounded-lg p-3">
+                    <div className="bg-surface-glass rounded-lg p-3">
                         <div className="text-xs text-gray-400 mb-1">忠誠度</div>
                         <div className="flex items-center gap-2">
                             <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
@@ -110,7 +110,7 @@ export function StatusDisplay({ character, showDetails = true }: StatusDisplayPr
                         </div>
                     </div>
 
-                    <div className="bg-gray-800/50 rounded-lg p-3">
+                    <div className="bg-surface-glass rounded-lg p-3">
                         <div className="text-xs text-gray-400 mb-1">野心</div>
                         <div className="flex items-center gap-2">
                             <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">

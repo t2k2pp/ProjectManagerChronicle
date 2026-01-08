@@ -40,7 +40,7 @@ export function GanttChart({
     const weekLabels = Array.from({ length: totalWeeks }, (_, i) => i + 1);
 
     return (
-        <div className="bg-gray-800 rounded-lg p-4 overflow-x-auto">
+        <div className="bg-surface rounded-lg p-4 overflow-x-auto">
             {/* ヘッダー（週数） */}
             <div className="flex border-b border-gray-700 pb-2 mb-2 min-w-max">
                 <div className="w-32 flex-shrink-0 text-gray-400 text-sm font-medium">
@@ -135,7 +135,7 @@ export function MiniGanttChart({
     const mainTasks = tasks.slice(0, 5); // 上位5タスクのみ
 
     return (
-        <div className="bg-gray-800/50 rounded-lg p-3">
+        <div className="bg-surface-glass rounded-lg p-3">
             <div className="text-xs text-gray-400 mb-2">進捗状況</div>
             {mainTasks.map(task => (
                 <div key={task.id} className="flex items-center gap-2 py-1">
