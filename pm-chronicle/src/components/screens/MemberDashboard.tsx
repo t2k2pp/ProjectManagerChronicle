@@ -130,7 +130,7 @@ export function MemberDashboard({
                     <Card variant="glass" padding="md">
                         <h2 className="text-lg font-bold text-white mb-3">📋 今週のタスク</h2>
                         {assignedTask ? (
-                            <div className="bg-gray-800 rounded-lg p-4">
+                            <div className="bg-surface rounded-lg p-4">
                                 <div className="text-white font-medium mb-2">{assignedTask.name}</div>
                                 <div className="text-xs text-gray-400 mb-2">
                                     進捗: {assignedTask.progress}%
@@ -179,8 +179,8 @@ export function MemberDashboard({
                                         onClick={() => handleSelfDevelopment(option)}
                                         disabled={player.money < option.cost}
                                         className={`w-full text-left p-3 rounded-lg border transition-all ${player.money >= option.cost
-                                                ? 'border-gray-700 bg-gray-800 hover:bg-gray-700'
-                                                : 'border-gray-800 bg-gray-900 opacity-50 cursor-not-allowed'
+                                            ? 'interactive'
+                                            : 'border-gray-800 bg-gray-900 opacity-50 cursor-not-allowed'
                                             }`}
                                     >
                                         <div className="flex justify-between items-start mb-1">

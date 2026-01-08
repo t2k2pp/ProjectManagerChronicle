@@ -391,7 +391,7 @@ function App() {
               <p className="text-gray-400 mb-6">{phase}</p>
               <button
                 onClick={() => setPhase('TITLE')}
-                className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700"
+                className="btn-primary px-6 py-3"
               >
                 タイトルへ戻る
               </button>
@@ -422,7 +422,7 @@ function App() {
           <p className="text-gray-400 mb-6">{error}</p>
           <button
             onClick={() => setPhase('TITLE')}
-            className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700"
+            className="btn-primary px-6 py-3"
           >
             タイトルへ戻る
           </button>

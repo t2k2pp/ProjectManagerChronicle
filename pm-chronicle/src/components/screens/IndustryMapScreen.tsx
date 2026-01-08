@@ -96,7 +96,7 @@ export function IndustryMapScreen({
                                 }}
                                 className={`text-left p-4 rounded-lg border transition-all ${selectedCompany?.id === company.id
                                     ? 'border-blue-500 bg-blue-500/20'
-                                    : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
+                                    : 'interactive'
                                     }`}
                             >
                                 <div className="flex items-start justify-between">
@@ -157,19 +157,19 @@ export function IndustryMapScreen({
                                 <div>
                                     <h3 className="text-sm text-gray-400 mb-2">企業ステータス</h3>
                                     <div className="grid grid-cols-2 gap-2">
-                                        <div className="bg-gray-800 p-2 rounded">
+                                        <div className="bg-surface p-2 rounded">
                                             <div className="text-xs text-gray-400">評判</div>
                                             <div className="text-lg font-bold text-purple-400">{selectedCompany.reputation}</div>
                                         </div>
-                                        <div className="bg-gray-800 p-2 rounded">
+                                        <div className="bg-surface p-2 rounded">
                                             <div className="text-xs text-gray-400">財務健全性</div>
                                             <div className="text-lg font-bold text-green-400">{selectedCompany.financialHealth}</div>
                                         </div>
-                                        <div className="bg-gray-800 p-2 rounded">
+                                        <div className="bg-surface p-2 rounded">
                                             <div className="text-xs text-gray-400">成長率</div>
                                             <div className="text-lg font-bold text-blue-400">{(selectedCompany.growthRate * 100).toFixed(1)}%</div>
                                         </div>
-                                        <div className="bg-gray-800 p-2 rounded">
+                                        <div className="bg-surface p-2 rounded">
                                             <div className="text-xs text-gray-400">働き方</div>
                                             <div className="text-sm font-bold text-orange-400">{selectedCompany.culture.workStyle}</div>
                                         </div>
@@ -181,7 +181,7 @@ export function IndustryMapScreen({
                                     <h3 className="text-sm text-gray-400 mb-2">専門分野</h3>
                                     <div className="flex flex-wrap gap-1">
                                         {selectedCompany.specialties.map((spec, i) => (
-                                            <span key={i} className="px-2 py-1 bg-gray-800 text-xs text-gray-300 rounded">
+                                            <span key={i} className="px-2 py-1 bg-surface text-xs text-gray-300 rounded">
                                                 {spec}
                                             </span>
                                         ))}
@@ -196,7 +196,7 @@ export function IndustryMapScreen({
                                             .filter(n => n.companyId === selectedCompany.id)
                                             .slice(0, 5)
                                             .map(npc => (
-                                                <div key={npc.id} className="flex items-center gap-2 text-sm bg-gray-800 p-2 rounded">
+                                                <div key={npc.id} className="flex items-center gap-2 text-sm bg-surface p-2 rounded">
                                                     <span className="text-white">{npc.name}</span>
                                                     <span className="text-gray-400 text-xs">{npc.position.title}</span>
                                                 </div>

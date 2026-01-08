@@ -213,7 +213,7 @@ export function WBSPlanningScreen({
                                         key={task.id}
                                         className={`p-2 rounded border ${criticalPath.includes(task.id)
                                             ? 'border-red-500 bg-red-500/10'
-                                            : 'border-gray-700 bg-gray-800'
+                                            : 'border-gray-700 bg-surface'
                                             }`}
                                     >
                                         <div className="flex justify-between items-center">
@@ -242,8 +242,8 @@ export function WBSPlanningScreen({
                                         onClick={() => addTask(template, phase.key)}
                                         disabled={exists}
                                         className={`w-full text-left px-2 py-1 text-xs rounded ${exists
-                                            ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                                            : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700 hover:text-white'
+                                            ? 'bg-surface text-gray-600 cursor-not-allowed'
+                                            : 'bg-surface-glass text-gray-400 hover:bg-surface-light hover:text-white'
                                             }`}
                                     >
                                         + {template}

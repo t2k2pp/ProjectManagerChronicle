@@ -146,7 +146,7 @@ export function CharacterListScreen({
                                 placeholder="名前・スキルで検索..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
+                                className="input"
                             />
                         </div>
 
@@ -158,10 +158,7 @@ export function CharacterListScreen({
                                     <button
                                         key={status}
                                         onClick={() => setStatusFilter(status)}
-                                        className={`px-3 py-1 rounded-lg text-sm ${statusFilter === status
-                                                ? 'bg-blue-600 text-white'
-                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                            }`}
+                                        className={`px-3 py-1 rounded-lg text-sm ${statusFilter === status ? 'active' : 'bg-surface-light text-gray-300 hover:bg-surface'}`}
                                     >
                                         {status === 'ALL' ? '全て' : status === 'EMPLOYED' ? '正社員' : 'フリーランス'}
                                     </button>
@@ -175,7 +172,7 @@ export function CharacterListScreen({
                             <select
                                 value={companyFilter}
                                 onChange={(e) => setCompanyFilter(e.target.value)}
-                                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                                className="input"
                             >
                                 <option value="ALL">全ての企業</option>
                                 {companies.filter(c => c.isActive).map(company => (
@@ -200,10 +197,7 @@ export function CharacterListScreen({
                                     <button
                                         key={key}
                                         onClick={() => handleSort(key)}
-                                        className={`w-full text-left px-3 py-1.5 rounded-lg text-sm flex justify-between items-center ${sortKey === key
-                                                ? 'bg-blue-600/30 text-blue-400'
-                                                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
-                                            }`}
+                                        className={`w-full text-left px-3 py-1.5 rounded-lg text-sm flex justify-between items-center ${sortKey === key ? 'selected' : 'bg-surface-glass text-gray-300 hover:bg-surface-light'}`}
                                     >
                                         {label}
                                         {sortKey === key && (

@@ -116,13 +116,13 @@ EVM指標:
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div className="bg-gray-800/50 rounded-lg p-3">
+                                    <div className="bg-surface-glass rounded-lg p-3">
                                         <div className="text-gray-400">SPI</div>
                                         <div className={`text-xl font-bold ${project.evm.spi >= 1 ? 'text-green-400' : 'text-red-400'}`}>
                                             {project.evm.spi.toFixed(2)}
                                         </div>
                                     </div>
-                                    <div className="bg-gray-800/50 rounded-lg p-3">
+                                    <div className="bg-surface-glass rounded-lg p-3">
                                         <div className="text-gray-400">CPI</div>
                                         <div className={`text-xl font-bold ${project.evm.cpi >= 1 ? 'text-green-400' : 'text-red-400'}`}>
                                             {project.evm.cpi.toFixed(2)}

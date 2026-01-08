@@ -111,8 +111,8 @@ export function ProposalScreen({
                                 key={proposal.id}
                                 onClick={() => handleSelectProposal(proposal)}
                                 className={`w-full text-left p-4 rounded-lg border transition-all ${selectedProposal?.id === proposal.id
-                                        ? 'border-blue-500 bg-blue-500/20'
-                                        : 'border-gray-700 bg-gray-800 hover:bg-gray-700'
+                                    ? 'border-blue-500 bg-blue-500/20'
+                                    : 'interactive'
                                     }`}
                             >
                                 <div className="flex justify-between items-start mb-2">
@@ -182,7 +182,7 @@ export function ProposalScreen({
                                             type="number"
                                             value={estimate.budget || ''}
                                             onChange={e => setEstimate({ ...estimate, budget: Number(e.target.value) })}
-                                            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
+                                            className="input"
                                         />
                                     </div>
                                     <div>
@@ -191,7 +191,7 @@ export function ProposalScreen({
                                             type="number"
                                             value={estimate.duration || ''}
                                             onChange={e => setEstimate({ ...estimate, duration: Number(e.target.value) })}
-                                            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
+                                            className="input"
                                         />
                                     </div>
                                     <div>
@@ -200,7 +200,7 @@ export function ProposalScreen({
                                             type="number"
                                             value={estimate.teamSize || ''}
                                             onChange={e => setEstimate({ ...estimate, teamSize: Number(e.target.value) })}
-                                            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
+                                            className="input"
                                         />
                                     </div>
                                     <div>

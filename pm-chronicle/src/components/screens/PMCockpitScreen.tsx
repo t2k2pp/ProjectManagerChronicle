@@ -39,7 +39,7 @@ export function PMCockpitScreen({
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
             {/* ヘッダー */}
-            <header className="bg-gray-800/50 backdrop-blur border-b border-gray-700 px-6 py-4">
+            <header className="bg-surface-glass border-b border-gray-700 px-6 py-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <button
@@ -85,10 +85,10 @@ export function PMCockpitScreen({
                                         key={policy}
                                         onClick={() => onPolicyChange(policy)}
                                         className={`px-3 py-1 rounded text-xs font-medium transition ${currentPolicy === policy
-                                                ? policy === 'NORMAL' ? 'bg-blue-600 text-white'
-                                                    : policy === 'QUALITY_FIRST' ? 'bg-green-600 text-white'
-                                                        : 'bg-red-600 text-white'
-                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                            ? policy === 'NORMAL' ? 'bg-[var(--color-primary)] text-white'
+                                                : policy === 'QUALITY_FIRST' ? 'bg-[var(--color-success)] text-white'
+                                                    : 'bg-[var(--color-danger)] text-white'
+                                            : 'bg-surface-light text-gray-300 hover:bg-surface'
                                             }`}
                                     >
                                         {policy === 'NORMAL' ? '通常' : policy === 'QUALITY_FIRST' ? '品質優先' : '突貫'}
@@ -121,28 +121,19 @@ export function PMCockpitScreen({
                         <div className="flex gap-2 mb-4">
                             <button
                                 onClick={() => setActiveTab('gantt')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'gantt'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                    }`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'gantt' ? 'active' : 'bg-surface-light text-gray-300 hover:bg-surface'}`}
                             >
                                 ガントチャート
                             </button>
                             <button
                                 onClick={() => setActiveTab('assign')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'assign'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                    }`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'assign' ? 'active' : 'bg-surface-light text-gray-300 hover:bg-surface'}`}
                             >
                                 アサイン
                             </button>
                             <button
                                 onClick={() => setActiveTab('team')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'team'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                    }`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === 'team' ? 'active' : 'bg-surface-light text-gray-300 hover:bg-surface'}`}
                             >
                                 チーム詳細
                             </button>
@@ -168,7 +159,7 @@ export function PMCockpitScreen({
                             {activeTab === 'team' && (
                                 <div className="grid grid-cols-2 gap-4">
                                     {teamMembers.map(member => (
-                                        <div key={member.id} className="bg-gray-800 rounded-lg p-4">
+                                        <div key={member.id} className="bg-surface rounded-lg p-4">
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <div className="font-medium text-white">{member.name}</div>

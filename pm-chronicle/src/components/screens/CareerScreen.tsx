@@ -99,19 +99,19 @@ export function CareerScreen({
                             <Card variant="glass" padding="md">
                                 <h2 className="text-lg font-bold text-white mb-4">基本情報</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                    <div className="bg-gray-800 p-3 rounded-lg">
+                                    <div className="bg-surface p-3 rounded-lg">
                                         <div className="text-xs text-gray-400">現在の役職</div>
                                         <div className="text-lg font-bold text-white">{player.position.title}</div>
                                     </div>
-                                    <div className="bg-gray-800 p-3 rounded-lg">
+                                    <div className="bg-surface p-3 rounded-lg">
                                         <div className="text-xs text-gray-400">経験年数</div>
                                         <div className="text-lg font-bold text-blue-400">{yearsOfExperience}年</div>
                                     </div>
-                                    <div className="bg-gray-800 p-3 rounded-lg">
+                                    <div className="bg-surface p-3 rounded-lg">
                                         <div className="text-xs text-gray-400">生年</div>
                                         <div className="text-lg font-bold text-white">{player.birthYear}年</div>
                                     </div>
-                                    <div className="bg-gray-800 p-3 rounded-lg">
+                                    <div className="bg-surface p-3 rounded-lg">
                                         <div className="text-xs text-gray-400">年齢</div>
                                         <div className="text-lg font-bold text-white">{currentYear - player.birthYear}歳</div>
                                     </div>
@@ -135,11 +135,11 @@ export function CareerScreen({
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4 mt-4">
-                                        <div className="bg-gray-800 p-3 rounded-lg">
+                                        <div className="bg-surface p-3 rounded-lg">
                                             <div className="text-xs text-gray-400">忠誠度</div>
                                             <div className="text-lg font-bold text-purple-400">{player.loyalty}</div>
                                         </div>
-                                        <div className="bg-gray-800 p-3 rounded-lg">
+                                        <div className="bg-surface p-3 rounded-lg">
                                             <div className="text-xs text-gray-400">野心</div>
                                             <div className="text-lg font-bold text-orange-400">{player.ambition}</div>
                                         </div>
@@ -292,11 +292,11 @@ export function CareerScreen({
 
                         {/* スキル合計 */}
                         <div className="grid grid-cols-2 gap-2 mb-4">
-                            <div className="bg-gray-800 p-2 rounded text-center">
+                            <div className="bg-surface p-2 rounded text-center">
                                 <div className="text-xs text-gray-400">技術</div>
                                 <div className="text-lg font-bold text-blue-400">{totalBlueSkills}</div>
                             </div>
-                            <div className="bg-gray-800 p-2 rounded text-center">
+                            <div className="bg-surface p-2 rounded text-center">
                                 <div className="text-xs text-gray-400">対人</div>
                                 <div className="text-lg font-bold text-red-400">{totalRedSkills}</div>
                             </div>
@@ -308,7 +308,7 @@ export function CareerScreen({
                             <div className="flex flex-wrap gap-1">
                                 {player.traits.length > 0 ? (
                                     player.traits.map((trait, i) => (
-                                        <span key={i} className="px-2 py-1 bg-gray-800 text-xs text-gray-300 rounded">
+                                        <span key={i} className="px-2 py-1 bg-surface text-xs text-gray-300 rounded">
                                             {trait}
                                         </span>
                                     ))
@@ -319,7 +319,7 @@ export function CareerScreen({
                         </div>
 
                         {/* ヒント */}
-                        <div className="mt-6 p-3 bg-gray-800/50 rounded-lg">
+                        <div className="mt-6 p-3 bg-surface-glass rounded-lg">
                             <p className="text-xs text-gray-400">
                                 💡 訓練でスキルを上げるには、PMコックピットで「訓練」タスクをアサインしてください
                             </p>

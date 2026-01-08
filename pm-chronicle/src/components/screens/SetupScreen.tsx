@@ -94,10 +94,7 @@ export function SetupScreen({
                                             <button
                                                 key={g}
                                                 onClick={() => setGender(g)}
-                                                className={`flex-1 py-3 rounded-lg font-medium transition ${gender === g
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                                    }`}
+                                                className={`flex-1 py-3 rounded-lg font-medium transition ${gender === g ? 'active' : 'bg-surface-light text-gray-300 hover:bg-surface'}`}
                                             >
                                                 {g === 'M' ? '♂ 男性' : g === 'F' ? '♀ 女性' : '⚧ その他'}
                                             </button>
@@ -117,10 +114,7 @@ export function SetupScreen({
                                     <button
                                         key={year}
                                         onClick={() => setStartYear(year)}
-                                        className={`w-full text-left p-4 rounded-lg border transition ${startYear === year
-                                            ? 'bg-blue-600/20 border-blue-500'
-                                            : 'bg-gray-700/50 border-gray-600 hover:border-gray-500'
-                                            }`}
+                                        className={`w-full text-left p-4 rounded-lg border transition ${startYear === year ? 'selected' : 'bg-surface-glass border-gray-600 hover:border-gray-500'}`}
                                     >
                                         <div className="flex justify-between items-start">
                                             <div>
@@ -151,10 +145,7 @@ export function SetupScreen({
                                         <button
                                             key={type}
                                             onClick={() => setStartType(type)}
-                                            className={`p-4 rounded-lg border transition ${startType === type
-                                                ? 'bg-blue-600/20 border-blue-500'
-                                                : 'bg-gray-700/50 border-gray-600 hover:border-gray-500'
-                                                }`}
+                                            className={`p-4 rounded-lg border transition ${startType === type ? 'selected' : 'bg-surface-glass border-gray-600 hover:border-gray-500'}`}
                                         >
                                             <div className="font-bold text-white">{label}</div>
                                             <div className="text-xs text-gray-400 mt-1">{desc}</div>
@@ -170,10 +161,7 @@ export function SetupScreen({
                                                 <button
                                                     key={company.id}
                                                     onClick={() => setSelectedCompanyId(company.id)}
-                                                    className={`w-full text-left p-3 rounded-lg border transition ${selectedCompanyId === company.id
-                                                        ? 'bg-blue-600/20 border-blue-500'
-                                                        : 'bg-gray-700/50 border-gray-600 hover:border-gray-500'
-                                                        }`}
+                                                    className={`w-full text-left p-3 rounded-lg border transition ${selectedCompanyId === company.id ? 'selected' : 'bg-surface-glass border-gray-600 hover:border-gray-500'}`}
                                                 >
                                                     <div className="font-medium text-white">{company.name}</div>
                                                     <div className="text-xs text-gray-400">
