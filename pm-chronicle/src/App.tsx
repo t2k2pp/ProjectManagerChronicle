@@ -12,7 +12,7 @@ import {
 } from './components/screens';
 import { ActivitySelector } from './components/game/ActivitySelector';
 import { EventDialog } from './components/game/EventDialog';
-import { BattleField } from './components/game/CardBattle';
+import { BattleField, DirectNegotiation } from './components/game/CardBattle';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
 import { checkProjectCompletion as checkTasksComplete } from './lib/projectScore';
 import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/projectEvents';
@@ -27,6 +27,7 @@ function App() {
     phase,
     setPhase,
     worldState,
+    playerId,
     startNewGame,
     loadGame,
     isLoading,
@@ -46,6 +47,9 @@ function App() {
 
   // 方針（ポリシー）ステート
   const [currentPolicy, setCurrentPolicy] = useState<ProjectPolicy>('NORMAL');
+
+  // 直談判モーダル状態
+  const [showNegotiation, setShowNegotiation] = useState(false);
 
   // セットアップ画面用ワールド初期化
   useEffect(() => {
@@ -450,10 +454,32 @@ function App() {
 
   const handleEventNegotiate = () => {
     if (currentEvent) {
-      // カードバトルへ遷移
-      setPhase('CARD_BATTLE');
-      // イベントは保持（バトル後に処理）
+      // 直談判モーダルを開く
+      setShowNegotiation(true);
     }
+  };
+
+  // 直談判結果ハンドラ
+  const handleNegotiationResult = (result: { success: boolean; score: number; gaugeChange: number }) => {
+    if (currentEvent && currentProject) {
+      if (result.success) {
+        // 交渉成功: 有利な条件で受け入れ（ペナルティ軽減）
+        const baseEffect = currentEvent.options.accept.effect;
+        const mitigatedEffect = {
+          ...baseEffect,
+          budgetChange: baseEffect.budgetChange ? Math.round(baseEffect.budgetChange * 0.5) : undefined,
+          scheduleChange: baseEffect.scheduleChange ? Math.round(baseEffect.scheduleChange * 0.5) : undefined,
+        };
+        const updated = applyEventEffect(currentProject, mitigatedEffect);
+        setCurrentProject(updated);
+      } else {
+        // 交渉失敗: 通常の受け入れ効果を適用
+        const updated = applyEventEffect(currentProject, currentEvent.options.accept.effect);
+        setCurrentProject(updated);
+      }
+      setCurrentEvent(null);
+    }
+    setShowNegotiation(false);
   };
 
   return (
@@ -466,6 +492,18 @@ function App() {
           onAccept={handleEventAccept}
           onReject={handleEventReject}
           onNegotiate={currentEvent.options.negotiate ? handleEventNegotiate : undefined}
+        />
+      )}
+
+      {/* 直談判モーダル */}
+      {showNegotiation && worldState && currentEvent && playerId && (
+        <DirectNegotiation
+          isOpen={showNegotiation}
+          onClose={() => setShowNegotiation(false)}
+          player={worldState.npcs.find(c => c.id === playerId) || worldState.freelancers.find(c => c.id === playerId)!}
+          opponent={worldState.npcs.filter(c => c.id !== playerId)[0]}
+          context={`${currentEvent.title}: ${currentEvent.description}`}
+          onResult={handleNegotiationResult}
         />
       )}
     </>

@@ -270,7 +270,24 @@ function processProjectWeek(
         // リスク発現チェック（幸運 + 特性で軽減）
         const riskThreshold = (task.riskFactor / 200) * (1 - luckFactor) * traitRiskModifier;
         if (task.riskFactor > 50 && Math.random() < riskThreshold) {
-            issues.push(`タスク「${task.name || task.id}」で問題発生`);
+            // ★ リスク実害化: 具体的なペナルティを適用
+            const qualityPenalty = 10;
+            const progressPenalty = 0.1; // 10%の手戻り
+            const costPenalty = 50000; // 追加コスト5万円
+
+            // 品質低下
+            task.quality = Math.max(0, task.quality - qualityPenalty);
+
+            // 進捗減少（手戻り）
+            const progressLoss = task.progress * progressPenalty;
+            task.progress = Math.max(0, task.progress - progressLoss);
+            totalProgress -= progressLoss;
+
+            // 追加コスト発生
+            acSpent += costPenalty;
+
+            // 詳細なログ
+            issues.push(`⚠️ タスク「${task.name || task.id}」で問題発生: 品質-${qualityPenalty}, 進捗-${progressLoss.toFixed(1)}%, 追加費用${costPenalty / 10000}万円`);
         }
 
         // スタミナ消費（ポリシー補正適用）
