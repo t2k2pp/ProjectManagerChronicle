@@ -15,3 +15,4 @@ export { ProposalScreen } from './ProposalScreen';
 export { WBSPlanningScreen } from './WBSPlanningScreen';
 export { MemberDashboard } from './MemberDashboard';
 export { VacationPuzzleScreen } from './VacationPuzzleScreen';
+export { SettingsScreen } from './SettingsScreen';

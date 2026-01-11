@@ -8,6 +8,7 @@ import { useGameStore, getPlayerCharacter, getPlayerCompany } from './store/game
 import {
   TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen,
   IndustryMapScreen, CareerScreen, ProjectCompletionScreen, ReportScreen,
+  SettingsScreen,
   type GameStartOptions
 } from './components/screens';
 import { ActivitySelector } from './components/game/ActivitySelector';
@@ -91,10 +92,7 @@ function App() {
                 setPhase('SETUP');
               }
             }}
-            onSettings={() => {
-              // TODO: 設定画面
-              console.log('Settings');
-            }}
+            onSettings={() => setPhase('SETTINGS')}
           />
         );
 
@@ -384,6 +382,13 @@ function App() {
               setPhase('PM_COCKPIT');
             }}
             onCancel={() => setPhase('PM_COCKPIT')}
+          />
+        );
+
+      case 'SETTINGS':
+        return (
+          <SettingsScreen
+            onBack={() => setPhase('TITLE')}
           />
         );
 

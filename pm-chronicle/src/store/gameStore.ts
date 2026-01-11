@@ -22,7 +22,8 @@ export type GamePhase =
     | 'VACATION_PUZZLE' // 休暇パズル
     | 'REPORT'          // 振り返りレポート
     | 'CAREER'          // キャリア画面
-    | 'INDUSTRY_MAP';   // 業界マップ
+    | 'INDUSTRY_MAP'    // 業界マップ
+    | 'SETTINGS';       // 設定画面
 
 /** ゲーム状態 */
 interface GameState {
