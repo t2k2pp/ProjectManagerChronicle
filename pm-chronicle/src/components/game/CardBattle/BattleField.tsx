@@ -17,6 +17,9 @@ interface BattleParticipant {
     maxMana: number;
     buff: number;
     debuff: number;
+    // PM特化効果の状態
+    scopeFreezeUntilTurn: number;  // 仕様凍結が有効なターンまで
+    riskMitigation: number;        // リスク軽減レベル
 }
 
 interface BattleFieldProps {
@@ -41,6 +44,8 @@ export function BattleField({
         maxMana: 3,
         buff: 0,
         debuff: 0,
+        scopeFreezeUntilTurn: 0,
+        riskMitigation: 0,
     });
 
     const [opponent, setOpponent] = useState<BattleParticipant>({
@@ -51,6 +56,8 @@ export function BattleField({
         maxMana: 3,
         buff: 0,
         debuff: 0,
+        scopeFreezeUntilTurn: 0,
+        riskMitigation: 0,
     });
 
     const [playerHand, setPlayerHand] = useState<NegotiationCard[]>(() =>
@@ -81,6 +88,7 @@ export function BattleField({
         // カード効果処理
         if (card.effects) {
             card.effects.forEach(effect => {
+                // 汎用効果
                 if (effect.type === 'HEAL' && effect.target === 'SELF') {
                     setPlayer(p => ({ ...p, hp: Math.min(p.maxHp, p.hp + effect.value) }));
                     setLog(l => [...l, `${player.name}のHPが${effect.value}回復！`]);
@@ -93,7 +101,35 @@ export function BattleField({
                     setOpponent(o => ({ ...o, debuff: o.debuff + effect.value }));
                     setLog(l => [...l, `${opponent.name}の防御力DOWN！`]);
                 }
+                // PM特化効果
+                if (effect.type === 'SCOPE_FREEZE' && effect.target === 'OPPONENT') {
+                    setOpponent(o => ({ ...o, scopeFreezeUntilTurn: turn + effect.value }));
+                    setLog(l => [...l, `🧳 仕様凍結発動！${effect.value}ターンの間、追加要求を無効化！`]);
+                }
+                if (effect.type === 'TRADEOFF') {
+                    setOpponent(o => ({ ...o, debuff: o.debuff + effect.value }));
+                    setLog(l => [...l, `⚖️ トレードオフ提案！相手に譲歩を迫る！`]);
+                }
+                if (effect.type === 'ESCALATE' && effect.target === 'OPPONENT') {
+                    // エスカレーション: 大ダメージ + デバフ
+                    setOpponent(o => ({ ...o, hp: Math.max(0, o.hp - effect.value), debuff: o.debuff + 2 }));
+                    setLog(l => [...l, `⬆️ エスカレーション！上位の権限で${effect.value}ダメージ！`]);
+                }
+                if (effect.type === 'BASELINE_CHANGE' && effect.target === 'SELF') {
+                    // ベースライン変更: デバフリセット + 回復
+                    setPlayer(p => ({ ...p, debuff: 0 }));
+                    setLog(l => [...l, `📊 ベースライン改訂！デバフをリセット！`]);
+                }
+                if (effect.type === 'RISK_MITIGATION' && effect.target === 'SELF') {
+                    setPlayer(p => ({ ...p, riskMitigation: p.riskMitigation + effect.value }));
+                    setLog(l => [...l, `🛡️ リスク対策実施！今後のリスク発生確率が下がります`]);
+                }
             });
+        }
+
+        // PMヒント表示
+        if (card.pmTip) {
+            setLog(l => [...l, card.pmTip!]);
         }
 
         // 手札から削除
