@@ -259,7 +259,16 @@ function processProjectWeek(
         task.quality = Math.min(100, Math.max(0, task.quality * modifier.quality * traitQualityBonus));
 
         // EV計算（出来高）
-        const taskValue = 100000; // 仮の1タスク価値
+        // タスクフェーズによる難易度/価値の違いを反映
+        const baseTaskValue = 100000;
+        const phaseMultiplier = {
+            'REQUIREMENT': 1.0,
+            'DESIGN': 1.2,
+            'DEVELOP': 1.5,
+            'TEST': 1.0,
+        }[task.phase] || 1.0;
+        const taskValue = baseTaskValue * phaseMultiplier;
+
         evEarned += (progressMade / 100) * taskValue;
 
         // AC計算（実コスト = 人件費 × 庶務によるAP削減）
@@ -269,8 +278,24 @@ function processProjectWeek(
 
         // リスク発現チェック（幸運 + 特性で軽減）
         const riskThreshold = (task.riskFactor / 200) * (1 - luckFactor) * traitRiskModifier;
-        if (task.riskFactor > 50 && Math.random() < riskThreshold) {
-            issues.push(`タスク「${task.name || task.id}」で問題発生`);
+        if (task.riskFactor > 20 && Math.random() < riskThreshold) {
+            // 問題発生時のペナルティ処理
+            const damageType = Math.random();
+            let issueMessage = "";
+
+            if (damageType < 0.5) {
+                // 品質低下イベント
+                const qualityDamage = 10 + Math.floor(Math.random() * 10);
+                task.quality = Math.max(0, task.quality - qualityDamage);
+                issueMessage = `タスク「${task.name}」でバグ多発！(品質 -${qualityDamage})`;
+            } else {
+                // 手戻り発生（進捗減少）
+                const progressDamage = 5 + Math.floor(Math.random() * 10);
+                task.progress = Math.max(0, task.progress - progressDamage);
+                totalProgress -= progressDamage; // 今週の進捗からマイナス
+                issueMessage = `タスク「${task.name}」で仕様手戻り発生！(進捗 -${progressDamage}%)`;
+            }
+            issues.push(issueMessage);
         }
 
         // スタミナ消費（ポリシー補正適用）

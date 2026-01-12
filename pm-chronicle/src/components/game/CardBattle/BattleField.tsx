@@ -60,6 +60,37 @@ export function BattleField({
     const [turn, setTurn] = useState(1);
     const [log, setLog] = useState<string[]>(['交渉開始！']);
     const [isPlayerTurn, setIsPlayerTurn] = useState(true);
+    const [isNegotiating, setIsNegotiating] = useState(false);
+    const [negotiationText, setNegotiationText] = useState('');
+
+    /** 直談判の発動 */
+    const startNegotiation = () => {
+        setIsNegotiating(true);
+    };
+
+    /** 直談判の送信（モック実装） */
+    const submitNegotiation = () => {
+        setIsNegotiating(false);
+        setLog(l => [...l, `あなた: 「${negotiationText}」`]);
+
+        // AI判定のシミュレーション（本来はaiServiceを呼ぶ）
+        const score = Math.floor(Math.random() * 40) + 60; // 60-100点
+
+        if (score >= 80) {
+             const damage = 15;
+             setOpponent(o => ({ ...o, hp: Math.max(0, o.hp - damage) }));
+             setLog(l => [...l, `AI判定: GREAT! (${score}点) - 相手は深く納得した！(${damage}ダメージ)`]);
+        } else {
+             const damage = 5;
+             setOpponent(o => ({ ...o, hp: Math.max(0, o.hp - damage) }));
+             setLog(l => [...l, `AI判定: GOOD (${score}点) - 相手は少し納得した。(${damage}ダメージ)`]);
+        }
+
+        setNegotiationText('');
+        // 相手ターンへ
+        setIsPlayerTurn(false);
+        setTimeout(opponentTurn, 1000);
+    };
 
     /** カードをプレイ */
     const playCard = (card: NegotiationCard) => {
@@ -201,6 +232,13 @@ export function BattleField({
                         カード使用
                     </Button>
                     <Button
+                        variant="danger"
+                        disabled={!isPlayerTurn || player.mana < 5}
+                        onClick={startNegotiation}
+                    >
+                        🔥 直談判 (コスト5)
+                    </Button>
+                    <Button
                         variant="secondary"
                         disabled={!isPlayerTurn}
                         onClick={endTurn}
@@ -209,6 +247,34 @@ export function BattleField({
                     </Button>
                 </div>
             </div>
+
+            {/* 直談判モーダル */}
+            {isNegotiating && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-800 rounded-xl p-6 w-full max-w-lg border border-red-500 shadow-2xl">
+                        <h3 className="text-xl font-bold text-red-500 mb-4">🔥 直談判開始</h3>
+                        <p className="text-gray-300 mb-4">
+                            相手を説得するメッセージを入力してください。AIが説得力を判定します。
+                        </p>
+                        <textarea
+                            className="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700 h-32 mb-4 focus:border-red-500 outline-none"
+                            placeholder="例: 品質を担保するために、納期を2週間延長させてください。その代わり、..."
+                            value={negotiationText}
+                            onChange={(e) => setNegotiationText(e.target.value)}
+                        />
+                        <div className="flex justify-end gap-3">
+                            <Button variant="ghost" onClick={() => setIsNegotiating(false)}>キャンセル</Button>
+                            <Button
+                                variant="danger"
+                                onClick={submitNegotiation}
+                                disabled={negotiationText.length < 10}
+                            >
+                                勝負する！
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

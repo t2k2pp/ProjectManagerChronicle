@@ -20,12 +20,13 @@ export function Button({
     children,
     ...props
 }: ButtonProps) {
-    const baseClasses = 'font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2';
+    // デザインシステム準拠のクラス割り当て
+    const baseClasses = 'font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer';
 
     const variantClasses = {
-        primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:scale-105',
-        secondary: 'bg-gray-600 hover:bg-gray-700 text-white shadow',
-        danger: 'bg-red-600 hover:bg-red-700 text-white shadow-lg',
+        primary: 'btn-primary', // index.cssのクラスを使用
+        secondary: 'btn-secondary', // index.cssのクラスを使用
+        danger: 'bg-danger text-white shadow-lg hover:bg-red-700', // CSS変数活用
         ghost: 'bg-transparent hover:bg-white/10 text-white',
     };
 
@@ -36,7 +37,7 @@ export function Button({
     };
 
     const disabledClasses = disabled || loading
-        ? 'opacity-50 cursor-not-allowed hover:scale-100'
+        ? 'opacity-50 cursor-not-allowed hover:scale-100 pointer-events-none'
         : '';
 
     return (

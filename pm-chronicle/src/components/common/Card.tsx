@@ -17,11 +17,11 @@ export function Card({
     variant = 'default',
     padding = 'md',
 }: CardProps) {
-    const baseClasses = 'rounded-xl';
+    const baseClasses = 'rounded-xl transition-all duration-300';
 
     const variantClasses = {
-        default: 'bg-gray-800 shadow-lg border border-gray-700',
-        glass: 'bg-white/10 backdrop-blur-lg border border-white/20 shadow-xl',
+        default: 'card', // index.cssのクラスを使用
+        glass: 'glass-card', // index.cssのクラスを使用
         bordered: 'bg-transparent border-2 border-gray-600',
     };
 
@@ -48,9 +48,9 @@ interface CardHeaderProps {
 
 export function CardHeader({ title, subtitle, action }: CardHeaderProps) {
     return (
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-4 border-b border-white/10 pb-2">
             <div>
-                <h3 className="text-lg font-bold text-white">{title}</h3>
+                <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
                 {subtitle && <p className="text-sm text-gray-400 mt-1">{subtitle}</p>}
             </div>
             {action && <div>{action}</div>}
