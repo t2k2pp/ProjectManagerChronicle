@@ -8,6 +8,8 @@ import { useGameStore, getPlayerCharacter, getPlayerCompany } from './store/game
 import {
   TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen,
   IndustryMapScreen, CareerScreen, ProjectCompletionScreen, ReportScreen,
+  SettingsScreen, CharacterListScreen, ProposalScreen, WBSPlanningScreen,
+  MemberDashboard,
   type GameStartOptions
 } from './components/screens';
 import { ActivitySelector } from './components/game/ActivitySelector';
@@ -19,8 +21,14 @@ import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/pro
 import { processTurn, checkProjectFailure, type ProjectPolicy } from './lib/engine/turnProcessor';
 import { saveSetupWorld, getSetupWorld, adjustWorldYear } from './db/repositories/worldRepository';
 import type { Project, Task, Character } from './types';
+import type { Proposal, Estimate } from './types/proposal';
 import type { ActivityResult } from './lib/activities';
+import { aiService } from './services/ai';
+import type { AIProviderConfig } from './services/ai';
 import './index.css';
+
+// AI設定をLocalStorageから読み込み
+const AI_CONFIG_STORAGE_KEY = 'pm-chronicle-ai-config';
 
 function App() {
   const {
@@ -46,6 +54,24 @@ function App() {
 
   // 方針（ポリシー）ステート
   const [currentPolicy, setCurrentPolicy] = useState<ProjectPolicy>('NORMAL');
+
+  // 案件選択後の一時保持データ（WBS計画用）
+  const [pendingProposal, setPendingProposal] = useState<Proposal | null>(null);
+  const [pendingEstimate, setPendingEstimate] = useState<Estimate | null>(null);
+
+  // アプリ起動時にAI設定を読み込み
+  useEffect(() => {
+    const savedConfig = localStorage.getItem(AI_CONFIG_STORAGE_KEY);
+    if (savedConfig) {
+      try {
+        const config = JSON.parse(savedConfig) as AIProviderConfig;
+        aiService.configure(config);
+        console.log(`AI provider configured: ${config.provider}`);
+      } catch (e) {
+        console.warn('Failed to load AI config:', e);
+      }
+    }
+  }, []);
 
   // セットアップ画面用ワールド初期化
   useEffect(() => {
@@ -87,10 +113,7 @@ function App() {
                 setPhase('SETUP');
               }
             }}
-            onSettings={() => {
-              // TODO: 設定画面
-              console.log('Settings');
-            }}
+            onSettings={() => setPhase('SETTINGS')}
           />
         );
 
@@ -187,6 +210,7 @@ function App() {
             onOpenCareer={() => setPhase('CAREER')}
             onOpenIndustryMap={() => setPhase('INDUSTRY_MAP')}
             onOpenActivity={() => setPhase('ACTIVITY')}
+            onOpenEmployeeList={() => setPhase('CHARACTER_LIST')}
             onContinueProject={() => setPhase('PM_COCKPIT')}
           />
         );
@@ -380,6 +404,130 @@ function App() {
               setPhase('PM_COCKPIT');
             }}
             onCancel={() => setPhase('PM_COCKPIT')}
+          />
+        );
+
+      case 'SETTINGS':
+        return (
+          <SettingsScreen
+            onBack={() => setPhase('TITLE')}
+          />
+        );
+
+      case 'CHARACTER_LIST':
+        if (!worldState) {
+          return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+        }
+        return (
+          <CharacterListScreen
+            characters={[...worldState.npcs, ...worldState.freelancers]}
+            companies={worldState.companies}
+            onSelectCharacter={(character) => {
+              console.log('Selected character:', character);
+              // TODO: キャラクター詳細表示
+            }}
+            onBack={() => setPhase('DASHBOARD')}
+          />
+        );
+
+      case 'PROJECT_SELECT':
+        if (!worldState || !playerCharacter) {
+          return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+        }
+        // 仮の案件データを生成
+        const mockProposals = worldState.companies.slice(0, 3).map((company, index) => ({
+          id: `proposal-${index + 1}`,
+          name: ['基幹システム刷新', 'ECサイト構築', 'AI導入支援'][index],
+          client: company,
+          description: '案件の詳細説明',
+          difficulty: (['EASY', 'NORMAL', 'HARD'] as const)[index],
+          estimatedBudget: { min: 1000 + index * 500, max: 2000 + index * 1000 },
+          estimatedDuration: { min: 8 + index * 4, max: 16 + index * 8 },
+          requiredSkills: ['Java', 'SQL'],
+          requiredPhases: ['REQUIREMENT', 'DESIGN', 'DEVELOP', 'TEST'] as ('REQUIREMENT' | 'DESIGN' | 'DEVELOP' | 'TEST')[],
+          deadline: worldState.currentWeek + 4,
+          competitors: [],
+          status: 'AVAILABLE' as const,
+          createdWeek: worldState.currentWeek,
+          tags: [],
+        }));
+        return (
+          <ProposalScreen
+            proposals={mockProposals}
+            playerReputation={playerCompany?.reputation || 50}
+            currentWeek={worldState.currentWeek}
+            onBidWon={(proposal, estimate) => {
+              console.log('Bid won:', proposal, estimate);
+              // WBS計画画面へ遷移
+              setPendingProposal(proposal);
+              setPendingEstimate(estimate);
+              setPhase('WBS_PLANNING');
+            }}
+            onBack={() => setPhase('DASHBOARD')}
+          />
+        );
+
+      case 'WBS_PLANNING':
+        // WBS計画画面（入札成功後に遷移）
+        if (!pendingProposal || !pendingEstimate) {
+          return (
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
+              <div className="text-center">
+                <h1 className="text-2xl font-bold mb-4">案件が選択されていません</h1>
+                <button
+                  onClick={() => setPhase('DASHBOARD')}
+                  className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700"
+                >
+                  戻る
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return (
+          <WBSPlanningScreen
+            proposal={pendingProposal}
+            estimate={pendingEstimate}
+            availableMembers={worldState ? [...worldState.npcs.slice(0, 5), ...(playerCharacter ? [playerCharacter] : [])] : []}
+            onConfirmPlan={(project, tasks) => {
+              console.log('WBS confirmed:', project, tasks);
+              setCurrentProject(project);
+              setCurrentTasks(tasks);
+              // チームメンバー設定
+              if (worldState && playerCharacter) {
+                const otherMembers = worldState.npcs.slice(0, 4);
+                setTeamMembers([playerCharacter, ...otherMembers]);
+              }
+              // ステートクリア
+              setPendingProposal(null);
+              setPendingEstimate(null);
+              setPhase('PM_COCKPIT');
+            }}
+            onBack={() => {
+              setPendingProposal(null);
+              setPendingEstimate(null);
+              setPhase('DASHBOARD');
+            }}
+          />
+        );
+
+      case 'MEMBER_DASHBOARD':
+        if (!playerCharacter || !worldState) {
+          return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+        }
+        return (
+          <MemberDashboard
+            player={playerCharacter}
+            currentYear={worldState.currentYear}
+            currentWeek={worldState.currentWeek}
+            onWeekEnd={() => {
+              // 週末処理
+              console.log('Week ended');
+            }}
+            onPlayerUpdate={(updatedPlayer) => {
+              console.log('Player updated:', updatedPlayer);
+              // TODO: プレイヤーステータス更新
+            }}
           />
         );
 

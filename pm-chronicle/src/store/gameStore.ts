@@ -15,14 +15,18 @@ export type GamePhase =
     | 'DASHBOARD'       // ダッシュボード
     | 'PROJECT_SELECT'  // 案件選択
     | 'BIDDING'         // 入札バトル
+    | 'WBS_PLANNING'    // WBS計画
     | 'PM_COCKPIT'      // PMコックピット（メイン）
     | 'PROJECT_COMPLETION' // プロジェクト完了
     | 'ACTIVITY'        // 日常活動
     | 'CARD_BATTLE'     // カードバトル
     | 'VACATION_PUZZLE' // 休暇パズル
     | 'REPORT'          // 振り返りレポート
+    | 'CHARACTER_LIST'  // 社員名簿
+    | 'MEMBER_DASHBOARD' // メンバーダッシュボード
     | 'CAREER'          // キャリア画面
-    | 'INDUSTRY_MAP';   // 業界マップ
+    | 'INDUSTRY_MAP'    // 業界マップ
+    | 'SETTINGS';       // 設定画面
 
 /** ゲーム状態 */
 interface GameState {

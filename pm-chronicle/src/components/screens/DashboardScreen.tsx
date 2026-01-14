@@ -16,6 +16,7 @@ interface DashboardScreenProps {
     onOpenCareer: () => void;
     onOpenIndustryMap: () => void;
     onOpenActivity?: () => void;
+    onOpenEmployeeList?: () => void;
     onContinueProject: () => void;
 }
 
@@ -28,6 +29,7 @@ export function DashboardScreen({
     onOpenCareer,
     onOpenIndustryMap,
     onOpenActivity,
+    onOpenEmployeeList,
     onContinueProject,
 }: DashboardScreenProps) {
     const currentEra = getEraName(worldState.currentYear);
@@ -151,6 +153,11 @@ export function DashboardScreen({
                         <Button onClick={onOpenIndustryMap} variant="secondary">
                             業界マップ
                         </Button>
+                        {onOpenEmployeeList && (
+                            <Button onClick={onOpenEmployeeList} variant="secondary">
+                                👥 社員名簿
+                            </Button>
+                        )}
                         {onOpenActivity && (
                             <Button onClick={onOpenActivity} variant="primary">
                                 🎉 日常活動
