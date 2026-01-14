@@ -179,6 +179,7 @@ export interface PuzzleConstraint {
 
 /**
  * 休暇パズルを生成（特性に基づく制約付き）
+ * 設計書3.3.2準拠の特性別ルール
  */
 export function generateVacationPuzzle(
     characters: Character[],
@@ -192,34 +193,35 @@ export function generateVacationPuzzle(
     const constraints: PuzzleConstraint[] = [];
 
     for (const character of characters) {
-        // 特性に基づく制約生成
-        if (character.traits.includes('vacation_lover')) {
-            // 休暇重視型: 最低2日は休暇必須
+        // 設計書3.3.2準拠: 特性別休暇希望生成ルール
+        const vacationRule = getVacationRule(character);
+
+        // 希望休日数を設定
+        constraints.push({
+            characterId: character.id,
+            type: 'MIN_DAYS',
+            value: vacationRule.desiredDays,
+            reason: `${character.name}は${vacationRule.traitLabel}のため、${vacationRule.desiredDays}日の休暇を希望`,
+        });
+
+        // 交渉可否とコスト情報を追加
+        if (!vacationRule.negotiable) {
+            // 交渉不可の場合は必須として設定
             constraints.push({
                 characterId: character.id,
-                type: 'MIN_DAYS',
-                value: 2,
-                reason: `${character.name}は休暇重視型のため、最低2日の休暇が必要です`,
+                type: 'MUST_TAKE',
+                value: vacationRule.desiredDays,
+                reason: `${character.name}の休暇は変更不可（${vacationRule.traitLabel}）`,
             });
         }
 
-        if (character.traits.includes('workaholic')) {
-            // ワーカホリック: 最大1日まで
-            constraints.push({
-                characterId: character.id,
-                type: 'MAX_DAYS',
-                value: 1,
-                reason: `${character.name}はワーカホリックのため、休暇は1日まで`,
-            });
-        }
-
-        // スタミナ低下時は休暇推奨
+        // スタミナ低下時は追加休暇推奨
         if (character.stamina.current / character.stamina.max < 0.4) {
             constraints.push({
                 characterId: character.id,
                 type: 'MUST_TAKE',
                 value: 1,
-                reason: `${character.name}のスタミナが低下中。休暇が必要です`,
+                reason: `${character.name}のスタミナが低下中。追加休暇が必要です`,
             });
         }
 
@@ -241,6 +243,66 @@ export function generateVacationPuzzle(
         initialSlots,
         blockedDays,
         constraints,
+    };
+}
+
+/**
+ * 設計書3.3.2: 特性別の休暇希望ルール
+ */
+interface VacationRule {
+    traitLabel: string;
+    desiredDays: number;
+    negotiable: boolean;
+    costType: 'NONE' | 'AP_LARGE' | 'BUDGET' | 'AP_SMALL';
+}
+
+function getVacationRule(character: Character): VacationRule {
+    // vacation_lover: 最大（7日）、交渉不可
+    if (character.traits.includes('vacation_lover')) {
+        return {
+            traitLabel: '休暇重視型',
+            desiredDays: 7,
+            negotiable: false,
+            costType: 'NONE',
+        };
+    }
+
+    // plan_oriented: 中（5日）、交渉可（高ストレス = AP大量消費）
+    if (character.traits.includes('plan_oriented')) {
+        return {
+            traitLabel: '計画重視型',
+            desiredDays: 5,
+            negotiable: true,
+            costType: 'AP_LARGE',
+        };
+    }
+
+    // money_lover: 少（3日）、交渉容易（予算消費）
+    if (character.traits.includes('money_lover')) {
+        return {
+            traitLabel: '金銭重視型',
+            desiredDays: 3,
+            negotiable: true,
+            costType: 'BUDGET',
+        };
+    }
+
+    // workaholic: 最小（1日）、自ら休暇を取りたがらない
+    if (character.traits.includes('workaholic')) {
+        return {
+            traitLabel: 'ワーカホリック',
+            desiredDays: 1,
+            negotiable: true,
+            costType: 'NONE',
+        };
+    }
+
+    // standard: 標準（2日）、交渉普通（AP少量消費）
+    return {
+        traitLabel: '標準',
+        desiredDays: 2,
+        negotiable: true,
+        costType: 'AP_SMALL',
     };
 }
 
