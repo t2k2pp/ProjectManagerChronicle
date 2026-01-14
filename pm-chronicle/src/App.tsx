@@ -24,6 +24,7 @@ import type { Project, Task, Character } from './types';
 import type { Proposal, Estimate } from './types/proposal';
 import type { ActivityResult } from './lib/activities';
 import { aiService } from './services/ai';
+import { saveService } from './services/saveService';
 import type { AIProviderConfig } from './services/ai';
 import './index.css';
 
@@ -105,10 +106,16 @@ function App() {
       case 'TITLE':
         return (
           <TitleScreen
-            onNewGame={() => setPhase('SETUP')}
-            onLoadGame={async () => {
-              // スロット1からロード（簡易実装）
-              const success = await loadGame(1);
+            onNewGame={(slotNumber) => {
+              // 選択されたスロット番号を保持してセットアップへ
+              console.log('New game in slot:', slotNumber);
+              useGameStore.getState().setCurrentSlot(slotNumber);
+              setPhase('SETUP');
+            }}
+            onLoadGame={async (slotNumber, _slotInfo) => {
+              // 選択されたスロットからロード
+              console.log('Load game from slot:', slotNumber);
+              const success = await loadGame(slotNumber);
               if (!success) {
                 setPhase('SETUP');
               }
@@ -289,6 +296,15 @@ function App() {
                   const event = checkRandomEvent(currentProject, turnResult.week);
                   if (event) {
                     setCurrentEvent(event);
+                  }
+
+                  // 週次オートセーブ（設計書 非機能要件 6.4）
+                  if (worldState && playerCharacter) {
+                    saveService.autoSave(
+                      playerCharacter.id,
+                      worldState,
+                      currentProject?.id
+                    ).catch(err => console.error('Auto save failed:', err));
                   }
                 }
               }
