@@ -48,6 +48,7 @@ export interface Estimate {
 export interface BidResult {
     won: boolean;
     reason: string;
+    bidScore?: number; // 入札スコア（0-100）
     competitorBids?: { companyName: string; budget: number }[];
 }
 

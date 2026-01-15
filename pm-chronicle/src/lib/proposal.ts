@@ -95,7 +95,8 @@ export function generateProposals(
 }
 
 /**
- * 入札判定
+ * 入札判定（確定的評価ベース）
+ * プレイヤーの見積もり精度によって結果が決まる
  */
 export function processBid(
     proposal: Proposal,
@@ -104,56 +105,93 @@ export function processBid(
 ): BidResult {
     const params = DIFFICULTY_PARAMS[proposal.difficulty];
 
-    // 基本勝率
-    let winChance = params.winChanceBase;
+    /**
+     * 入札スコア計算（0-100）
+     * 60以上で落札成功
+     */
+    let score = params.winChanceBase * 100; // 基本スコア変換
 
-    // 予算による補正（安いほど有利、ただし安すぎると不信感）
+    // 予算精度評価（最大±20ポイント）
     const budgetMid = (proposal.estimatedBudget.min + proposal.estimatedBudget.max) / 2;
     const budgetRatio = estimate.budget / budgetMid;
     if (budgetRatio < 0.7) {
-        winChance -= 0.2; // 安すぎて不信
-    } else if (budgetRatio < 0.9) {
-        winChance += 0.15; // 競争力あり
+        // 安すぎ：クライアントは不信感を持つ
+        score -= 20;
+    } else if (budgetRatio >= 0.85 && budgetRatio <= 0.95) {
+        // 最適ゾーン：競争力がありつつ信頼できる
+        score += 15;
+    } else if (budgetRatio > 0.95 && budgetRatio <= 1.05) {
+        // 適正範囲
+        score += 5;
     } else if (budgetRatio > 1.1) {
-        winChance -= 0.1; // 高い
+        // 高すぎ
+        score -= 10;
     }
 
-    // 期間による補正
+    // 期間評価（最大±15ポイント）
     const durationMid = (proposal.estimatedDuration.min + proposal.estimatedDuration.max) / 2;
     const durationRatio = estimate.duration / durationMid;
-    if (durationRatio < 0.8) {
-        winChance += 0.1; // 早い
+    if (durationRatio >= 0.85 && durationRatio <= 1.0) {
+        // 最適：やや早めの妥当な提案
+        score += 15;
+    } else if (durationRatio < 0.7) {
+        // 短すぎ：実現性に疑問
+        score -= 10;
     } else if (durationRatio > 1.2) {
-        winChance -= 0.1; // 遅い
+        // 長すぎ
+        score -= 10;
     }
 
-    // 評判補正
-    winChance += (playerReputation - 50) / 200; // ±0.25
+    // 評判ボーナス（最大±15ポイント）
+    score += (playerReputation - 50) * 0.3;
 
-    // 自信度補正
-    winChance += (estimate.confidence - 50) / 500; // ±0.1
+    // 自信度ボーナス（最大±10ポイント）
+    score += (estimate.confidence - 50) * 0.2;
 
-    // 確率を0-1に収める
-    winChance = Math.max(0.05, Math.min(0.95, winChance));
+    // 難易度による閾値調整
+    const winThreshold = 60 - (params.winChanceBase - 0.5) * 20; // 難易度補正
 
-    // 抽選
-    const won = Math.random() < winChance;
+    // 確定的判定
+    const won = score >= winThreshold;
 
     if (won) {
+        // 落札成功時、スコアに応じたメッセージ
+        const excellentReasons = [
+            '貴社の提案が最も優れていると判断されました。',
+            'バランスの取れた見積もりが高く評価されました。',
+            '信頼性と競争力を両立した提案でした。',
+        ];
+        const goodReasons = [
+            '総合的に検討した結果、貴社に決定しました。',
+            '条件面で折り合いがつきました。',
+        ];
+
         return {
             won: true,
-            reason: '貴社の提案が最も優れていると判断されました。',
+            reason: score >= 80 ? excellentReasons[0] : goodReasons[0],
+            bidScore: Math.round(score),
         };
     } else {
-        const reasons = [
-            '他社の提案がより魅力的でした。',
-            '予算面で折り合いがつきませんでした。',
-            'スケジュールの都合で見送りとなりました。',
-            '今回は別のベンダーに決定しました。',
-        ];
+        // 敗北時、原因に応じたフィードバック
+        let reason: string;
+        if (budgetRatio < 0.7) {
+            reason = '見積額が低すぎ、実現可能性に懸念がありました。';
+        } else if (budgetRatio > 1.1) {
+            reason = '他社と比較してコスト面で競争力がありませんでした。';
+        } else if (durationRatio < 0.7) {
+            reason = 'スケジュールが短すぎ、品質面での懸念がありました。';
+        } else if (durationRatio > 1.2) {
+            reason = 'スケジュールが長すぎ、スピード感が不足していました。';
+        } else if (playerReputation < 40) {
+            reason = '実績面でより信頼できる他社を選択しました。';
+        } else {
+            reason = '総合評価で他社がわずかに上回りました。';
+        }
+
         return {
             won: false,
-            reason: reasons[Math.floor(Math.random() * reasons.length)],
+            reason,
+            bidScore: Math.round(score),
         };
     }
 }

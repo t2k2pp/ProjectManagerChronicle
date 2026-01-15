@@ -161,25 +161,79 @@ const EVENT_TEMPLATES: Omit<ProjectEvent, 'id'>[] = [
 ];
 
 /**
- * ランダムイベント発生チェック
+ * リスクベースイベント発生チェック
+ * プレイヤーの管理状況に応じてイベントが発生
  */
 export function checkRandomEvent(
     project: Project,
-    currentWeek: number
+    currentWeek: number,
+    tasks?: { quality: number; riskFactor: number }[]
 ): ProjectEvent | null {
-    // 発生確率（週ごとに10%）
-    if (Math.random() > 0.1) return null;
+    /**
+     * イベント発生確率はプロジェクト状態から計算
+     * - SPI/CPI低下 → スケジュール/予算イベント発生
+     * - 品質低下 → クレーム/技術問題発生
+     * - リスク高タスク → トラブル発生
+     */
 
-    // プロジェクト後半ほどイベント発生しやすい
-    const progressRatio = currentWeek / project.schedule.endWeek;
-    if (progressRatio < 0.2 && Math.random() > 0.3) return null;
+    // 基本発生閾値（これを超えるとイベント発生）
+    let eventScore = 0;
+    let eventType: ProjectEventType | null = null;
 
-    // ランダムにイベント選択
-    const template = EVENT_TEMPLATES[Math.floor(Math.random() * EVENT_TEMPLATES.length)];
+    // 1. スケジュール遅延チェック（SPI < 0.9）
+    if (project.evm && project.evm.spi < 0.9) {
+        eventScore += (0.9 - project.evm.spi) * 50; // 最大25ポイント
+        if (project.evm.spi < 0.8) {
+            eventType = 'DEADLINE_EXTENSION';
+        }
+    }
+
+    // 2. コスト超過チェック（CPI < 0.9）
+    if (project.evm && project.evm.cpi < 0.9) {
+        eventScore += (0.9 - project.evm.cpi) * 40; // 最大20ポイント
+        if (project.evm.cpi < 0.8 && !eventType) {
+            eventType = 'BUDGET_NEGOTIATION';
+        }
+    }
+
+    // 3. 品質低下チェック
+    const avgQuality = tasks && tasks.length > 0
+        ? tasks.reduce((sum, t) => sum + t.quality, 0) / tasks.length
+        : 80;
+    if (avgQuality < 70) {
+        eventScore += (70 - avgQuality) * 0.5; // 最大15ポイント
+        if (!eventType) {
+            eventType = avgQuality < 60 ? 'CLIENT_COMPLAINT' : 'TECHNICAL_ISSUE';
+        }
+    }
+
+    // 4. 高リスクタスク存在チェック
+    const highRiskCount = tasks
+        ? tasks.filter(t => t.riskFactor > 70).length
+        : 0;
+    if (highRiskCount >= 2) {
+        eventScore += highRiskCount * 5;
+        if (!eventType) {
+            eventType = 'MEMBER_TROUBLE';
+        }
+    }
+
+    // 5. 進捗フェーズによる補正（後半ほどイベント顕在化）
+    const progressRatio = currentWeek / Math.max(1, project.schedule.endWeek);
+    eventScore *= (0.5 + progressRatio * 0.5); // 後半で最大1.0倍
+
+    // 閾値判定（20以上でイベント発生）
+    if (eventScore < 20) {
+        return null;
+    }
+
+    // イベントタイプに基づいてテンプレート選択
+    const template = EVENT_TEMPLATES.find(t => t.type === eventType)
+        || EVENT_TEMPLATES.find(t => t.type === 'SCOPE_CHANGE')!;
 
     return {
         ...template,
-        id: `event-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        id: `event-${Date.now()}-${currentWeek}`,
     };
 }
 
