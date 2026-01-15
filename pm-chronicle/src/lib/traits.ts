@@ -204,6 +204,136 @@ export const TRAIT_DEFINITIONS: TraitDefinition[] = [
         ],
         conflictsWith: ['optimist'],
     },
+
+    // 追加特性（characterGenerator.ts との整合性のため）
+    {
+        id: 'plan_oriented',
+        name: '計画重視',
+        description: '事前計画を重視し、急な変更に抵抗する',
+        category: 'WORK_STYLE',
+        effects: [
+            { type: 'QUALITY_MODIFIER', value: 1.1 },
+            { type: 'CHANGE_RESISTANCE', value: 0.7, condition: 'change=sudden' },
+        ],
+        conflictsWith: ['flexible'],
+    },
+    {
+        id: 'work_lover',
+        name: '仕事好き',
+        description: '仕事に情熱を持ち、残業も苦にならない',
+        category: 'LIFE_STYLE',
+        effects: [
+            { type: 'PROGRESS_MODIFIER', value: 1.1 },
+            { type: 'MORALE_MODIFIER', value: 1.05 },
+        ],
+        conflictsWith: ['vacation_lover'],
+    },
+    {
+        id: 'night_owl',
+        name: '夜型',
+        description: '夜の作業に強いが朝は苦手',
+        category: 'LIFE_STYLE',
+        effects: [
+            { type: 'PROGRESS_MODIFIER', value: 1.1, condition: 'time=night' },
+            { type: 'PROGRESS_MODIFIER', value: 0.9, condition: 'time=morning' },
+        ],
+        conflictsWith: ['early_bird'],
+    },
+    {
+        id: 'early_bird',
+        name: '朝型',
+        description: '早朝から活動的で朝の作業効率が高い',
+        category: 'LIFE_STYLE',
+        effects: [
+            { type: 'PROGRESS_MODIFIER', value: 1.1, condition: 'time=morning' },
+            { type: 'STAMINA_MODIFIER', value: 1.05 },
+        ],
+        conflictsWith: ['night_owl'],
+    },
+    {
+        id: 'pragmatist',
+        name: '実用主義',
+        description: '効率を重視し、実用的な解決策を好む',
+        category: 'WORK_STYLE',
+        effects: [
+            { type: 'PROGRESS_MODIFIER', value: 1.1 },
+            { type: 'QUALITY_MODIFIER', value: 0.95 },
+        ],
+        conflictsWith: ['perfectionist'],
+    },
+    {
+        id: 'team_player',
+        name: 'チームプレイヤー',
+        description: 'チームワークを重視し、協力して成果を出す',
+        category: 'PERSONALITY',
+        effects: [
+            { type: 'MORALE_MODIFIER', value: 1.1 },
+            { type: 'PROGRESS_MODIFIER', value: 1.05, condition: 'team_size>1' },
+        ],
+        conflictsWith: ['lone_wolf'],
+    },
+    {
+        id: 'risk_taker',
+        name: 'リスクテイカー',
+        description: '挑戦的でリスクを恐れないが、失敗しやすい',
+        category: 'PERSONALITY',
+        effects: [
+            { type: 'PROGRESS_MODIFIER', value: 1.15 },
+            { type: 'RISK_MODIFIER', value: 1.3 },
+        ],
+        conflictsWith: ['cautious'],
+    },
+    {
+        id: 'cautious',
+        name: '慎重派',
+        description: 'リスクを避け、安全策を取る',
+        category: 'PERSONALITY',
+        effects: [
+            { type: 'RISK_MODIFIER', value: 0.7 },
+            { type: 'PROGRESS_MODIFIER', value: 0.9 },
+        ],
+        conflictsWith: ['risk_taker'],
+    },
+    {
+        id: 'creative',
+        name: 'クリエイティブ',
+        description: '創造的な発想が得意で、新しいアイデアを生み出す',
+        category: 'SKILL_BONUS',
+        effects: [
+            { type: 'QUALITY_MODIFIER', value: 1.15 },
+        ],
+    },
+    {
+        id: 'analytical',
+        name: '分析型',
+        description: 'データと論理に基づいた判断が得意',
+        category: 'SKILL_BONUS',
+        effects: [
+            { type: 'QUALITY_MODIFIER', value: 1.1 },
+            { type: 'RISK_MODIFIER', value: 0.9 },
+        ],
+    },
+    {
+        id: 'communicator',
+        name: 'コミュニケーター',
+        description: '対人コミュニケーションが得意で、調整役に向く',
+        category: 'PERSONALITY',
+        effects: [
+            { type: 'MORALE_MODIFIER', value: 1.1 },
+        ],
+        conflictsWith: ['introvert'],
+    },
+    {
+        id: 'introvert',
+        name: '内向型',
+        description: '一人での作業を好み、静かな環境で力を発揮',
+        category: 'PERSONALITY',
+        effects: [
+            { type: 'PROGRESS_MODIFIER', value: 1.1, condition: 'team_size=1' },
+            { type: 'MORALE_MODIFIER', value: 0.95, condition: 'team_size>3' },
+        ],
+        conflictsWith: ['communicator'],
+    },
 ];
 
 // ========================
