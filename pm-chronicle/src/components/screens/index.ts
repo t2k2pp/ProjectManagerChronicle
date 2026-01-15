@@ -15,4 +15,5 @@ export { ProposalScreen } from './ProposalScreen';
 export { WBSPlanningScreen } from './WBSPlanningScreen';
 export { MemberDashboard } from './MemberDashboard';
 export { VacationPuzzleScreen } from './VacationPuzzleScreen';
+export { HistoryScreen } from './HistoryScreen';
 export { SettingsScreen } from './SettingsScreen';

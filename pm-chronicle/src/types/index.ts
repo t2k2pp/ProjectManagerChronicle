@@ -247,7 +247,7 @@ export interface WorldState {
     retiredNpcs: Character[];
 
     industryState: IndustryState;
-    pastEvents: HistoricalEvent[];
+    history: HistoricalEvent[];
 }
 
 // ========================

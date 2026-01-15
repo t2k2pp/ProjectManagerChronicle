@@ -9,7 +9,7 @@ import {
   TitleScreen, SetupScreen, DashboardScreen, PMCockpitScreen,
   IndustryMapScreen, CareerScreen, ProjectCompletionScreen, ReportScreen,
   SettingsScreen, CharacterListScreen, ProposalScreen, WBSPlanningScreen,
-  MemberDashboard,
+  MemberDashboard, HistoryScreen,
   type GameStartOptions
 } from './components/screens';
 import { ActivitySelector } from './components/game/ActivitySelector';
@@ -18,7 +18,7 @@ import { BattleField } from './components/game/CardBattle';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
 import { checkProjectCompletion as checkTasksComplete } from './lib/projectScore';
 import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/projectEvents';
-import { processTurn, checkProjectFailure, type ProjectPolicy } from './lib/engine/turnProcessor';
+import { processTurn, checkProjectFailure, type ProjectPolicy, type TurnResult } from './lib/engine/turnProcessor';
 import { saveSetupWorld, getSetupWorld, adjustWorldYear } from './db/repositories/worldRepository';
 import type { Project, Task, Character } from './types';
 import type { Proposal, Estimate } from './types/proposal';
@@ -52,6 +52,9 @@ function App() {
 
   // イベントシステム
   const [currentEvent, setCurrentEvent] = useState<ProjectEvent | null>(null);
+
+  // ターン結果（結婚イベントなどをUIに渡すため）
+  const [lastTurnResult, setLastTurnResult] = useState<TurnResult | null>(null);
 
   // 方針（ポリシー）ステート
   const [currentPolicy, setCurrentPolicy] = useState<ProjectPolicy>('NORMAL');
@@ -186,6 +189,7 @@ function App() {
             onOpenIndustryMap={() => setPhase('INDUSTRY_MAP')}
             onOpenActivity={() => setPhase('ACTIVITY')}
             onOpenEmployeeList={() => setPhase('CHARACTER_LIST')}
+            onOpenHistory={() => setPhase('HISTORY')}
             onContinueProject={() => setPhase('PM_COCKPIT')}
           />
         );
@@ -213,6 +217,8 @@ function App() {
                 playerCharacter,
                 currentPolicy
               );
+
+              setLastTurnResult(turnResult);
 
               // ワールド状態更新（年・週が進む）
               // Note: processTurnは内部でworldStateを変更している
@@ -288,6 +294,18 @@ function App() {
               );
             }}
             onOpenMenu={() => setPhase('DASHBOARD')}
+            // 新規追加プロップス
+            recentEvents={lastTurnResult?.events || []}
+            marriageProposal={lastTurnResult?.marriageProposal}
+            onAcceptMarriage={() => {
+              alert('おめでとうございます！結婚しました！'); // 簡易実装
+              // TODO: 結婚処理の実装（ステータス更新など）
+              setLastTurnResult(prev => prev ? { ...prev, marriageProposal: undefined } : null);
+            }}
+            onRejectMarriage={() => {
+              // 拒否処理
+              setLastTurnResult(prev => prev ? { ...prev, marriageProposal: undefined } : null);
+            }}
           />
         );
 
@@ -410,6 +428,18 @@ function App() {
               console.log('Selected character:', character);
               // TODO: キャラクター詳細表示
             }}
+            onBack={() => setPhase('DASHBOARD')}
+          />
+        );
+
+      case 'HISTORY':
+        if (!worldState) {
+          return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+        }
+        return (
+          <HistoryScreen
+            pastEvents={worldState.history}
+            currentYear={worldState.currentYear}
             onBack={() => setPhase('DASHBOARD')}
           />
         );

@@ -7,8 +7,8 @@ import {
     calculateWeeklyStamina,
     calculateStaminaEfficiency,
     evaluateStaminaStatus
-} from '../lib/calculators/staminaCalculator';
-import type { Character } from '../types';
+} from './staminaCalculator';
+import type { Character } from '../../types';
 
 // テスト用キャラクター
 const createTestCharacter = (staminaCurrent: number): Character => ({
@@ -23,12 +23,18 @@ const createTestCharacter = (staminaCurrent: number): Character => ({
     statsBlue: { design: 5, develop: 5, test: 5, negotiation: 5, propose: 5, judgment: 5 },
     statsRed: { admin: 5, organizer: 5, service: 5, chat: 5, charm: 5, luck: 5 },
     stamina: { current: staminaCurrent, max: 100, recoveryRate: 10 },
+    ageType: 'ENDURANCE',
     traits: [],
     techSkills: ['TypeScript'],
     loyalty: 50,
     ambition: 50,
     relationships: [],
     marriageStatus: 'SINGLE',
+    childCount: 0,
+    isAwakened: false,
+    mood: 80,
+    money: 100,
+    certifications: [],
 });
 
 describe('Stamina Calculator', () => {

@@ -22,6 +22,7 @@ export type GamePhase =
     | 'CARD_BATTLE'     // カードバトル
     | 'VACATION_PUZZLE' // 休暇パズル
     | 'REPORT'          // 振り返りレポート
+    | 'HISTORY'         // 履歴画面
     | 'CHARACTER_LIST'  // 社員名簿
     | 'MEMBER_DASHBOARD' // メンバーダッシュボード
     | 'CAREER'          // キャリア画面

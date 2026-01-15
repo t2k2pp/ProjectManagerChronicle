@@ -8,6 +8,7 @@ import { simulateYear } from '../simulation/npcSimulator';
 import { simulateWorldWeek, applyYearlySimulationResult } from '../simulation/worldSimulator';
 import { getEventsForYear } from '../events/historicalEvents';
 import { getProgressModifier, getQualityModifier, getRiskModifier, AGE_TYPES } from '../traits';
+import { checkMarriageEvent } from './marriageSystem';
 
 /** ターン処理結果 */
 export interface TurnResult {
@@ -17,6 +18,10 @@ export interface TurnResult {
     projectUpdates: ProjectUpdate[];
     characterUpdates: CharacterUpdate[];
     newEvents: string[];
+    marriageProposal?: {
+        partnerId: string;
+        message: string;
+    };
 }
 
 /** プロジェクト更新情報 */
@@ -172,6 +177,25 @@ export function processTurn(
     // ワールド状態更新
     worldState.currentYear = year;
     worldState.currentWeek = week;
+
+    // 結婚イベント判定 (追加)
+    // processTurn内でCharacterのimportはすでにされているが、checkMarriageEventをimportする必要がある
+    // しかし、循環参照などを避けるため、ここでは動的import等は使わず、上部でimportを追加する必要がある。
+    // replace_file_contentは単一ブロックの置換なので、import文の追加は別途行う必要があるが、
+    // ここではロジック部分のみを追加し、あとでimportを追加する。
+    // エラーになるため、まずはimportを追加してから、ここを修正する手順にするのが正しいが、
+    // ここではロジックを追加する。importは次のステップで追加する。
+
+    // 結婚イベント判定
+    // 週末のみ判定（例：4週に1回など頻度を調整してもよいが、一旦毎ターン判定し確率は関数内で管理）
+    const marriageCheck = checkMarriageEvent(playerCharacter, worldState.npcs, worldState.seed + week);
+    if (marriageCheck.triggered && marriageCheck.partnerId) {
+        result.marriageProposal = {
+            partnerId: marriageCheck.partnerId,
+            message: marriageCheck.message || '結婚の申し込みがありました'
+        };
+        result.events.push(`💖 ${marriageCheck.message}`);
+    }
 
     return result;
 }

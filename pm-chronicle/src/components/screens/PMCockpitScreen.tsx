@@ -5,7 +5,8 @@
 
 import { useState } from 'react';
 import { Card, CardHeader, Button } from '../common';
-import { GanttChart, EVMeter, CharacterList, TaskAssignmentPanel } from '../game/PMCockpit';
+import { GanttChart, EVMeter, CharacterList, TaskAssignmentPanel, NewsTicker } from '../game/PMCockpit';
+import { MarriageTargetModal } from '../game/MarriageTargetModal';
 import type { Project, Task, Character } from '../../types';
 import type { ProjectPolicy } from '../../lib/engine/turnProcessor';
 
@@ -20,6 +21,10 @@ interface PMCockpitScreenProps {
     onAssignTask: (taskId: string, characterId: string) => void;
     onUnassignTask: (taskId: string) => void;
     onOpenMenu: () => void;
+    recentEvents?: string[];
+    marriageProposal?: { partnerId: string; message: string; };
+    onAcceptMarriage?: () => void;
+    onRejectMarriage?: () => void;
 }
 
 export function PMCockpitScreen({
@@ -33,11 +38,23 @@ export function PMCockpitScreen({
     onAssignTask,
     onUnassignTask,
     onOpenMenu,
+    recentEvents = [],
+    marriageProposal,
+    onAcceptMarriage,
+    onRejectMarriage,
 }: PMCockpitScreenProps) {
     const [activeTab, setActiveTab] = useState<'gantt' | 'assign' | 'team'>('gantt');
 
+    // 結婚相手の特定
+    const marriagePartner = marriageProposal
+        ? teamMembers.find(m => m.id === marriageProposal.partnerId)
+        : undefined;
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex flex-col">
+            {/* ニュースティッカー */}
+            <NewsTicker events={recentEvents} />
+
             {/* ヘッダー */}
             <header className="bg-gray-800/50 backdrop-blur border-b border-gray-700 px-6 py-4">
                 <div className="flex items-center justify-between">
@@ -85,10 +102,10 @@ export function PMCockpitScreen({
                                         key={policy}
                                         onClick={() => onPolicyChange(policy)}
                                         className={`px-3 py-1 rounded text-xs font-medium transition ${currentPolicy === policy
-                                                ? policy === 'NORMAL' ? 'bg-blue-600 text-white'
-                                                    : policy === 'QUALITY_FIRST' ? 'bg-green-600 text-white'
-                                                        : 'bg-red-600 text-white'
-                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                            ? policy === 'NORMAL' ? 'bg-blue-600 text-white'
+                                                : policy === 'QUALITY_FIRST' ? 'bg-green-600 text-white'
+                                                    : 'bg-red-600 text-white'
+                                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                                             }`}
                                     >
                                         {policy === 'NORMAL' ? '通常' : policy === 'QUALITY_FIRST' ? '品質優先' : '突貫'}
@@ -233,6 +250,17 @@ export function PMCockpitScreen({
                     </aside>
                 </div>
             </main>
+
+            {/* 結婚イベントモーダル */}
+            {marriagePartner && (
+                <MarriageTargetModal
+                    isOpen={!!marriageProposal}
+                    partner={marriagePartner}
+                    onAccept={onAcceptMarriage || (() => { })}
+                    onReject={onRejectMarriage || (() => { })}
+                    onClose={onRejectMarriage || (() => { })}
+                />
+            )}
         </div>
     );
 }

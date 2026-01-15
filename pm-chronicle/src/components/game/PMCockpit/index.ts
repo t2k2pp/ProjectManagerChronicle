@@ -8,3 +8,4 @@ export { CharacterCard, CharacterList } from './CharacterCard';
 export { TaskAssignmentPanel } from './TaskAssignment';
 export { OfficeView, MiniOfficeView } from './OfficeView';
 export { TurnControlPanel, type WeeklyPolicy } from './TurnControlPanel';
+export * from './NewsTicker';

@@ -68,7 +68,7 @@ export function generateWorld(options: WorldGenerationOptions): WorldState {
         freelancers,
         retiredNpcs,
         industryState,
-        pastEvents,
+        history: pastEvents,
     };
 }
 
