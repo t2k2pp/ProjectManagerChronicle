@@ -298,8 +298,20 @@ function App() {
             recentEvents={lastTurnResult?.events || []}
             marriageProposal={lastTurnResult?.marriageProposal}
             onAcceptMarriage={() => {
-              alert('おめでとうございます！結婚しました！'); // 簡易実装
-              // TODO: 結婚処理の実装（ステータス更新など）
+              if (lastTurnResult?.marriageProposal && playerCharacter && worldState) {
+                // プレイヤーのステータスを更新
+                playerCharacter.marriageStatus = 'MARRIED';
+                playerCharacter.spouseId = lastTurnResult.marriageProposal.partnerId;
+
+                // 配偶者のステータスも更新
+                const spouse = worldState.npcs.find(n => n.id === lastTurnResult.marriageProposal?.partnerId);
+                if (spouse) {
+                  spouse.marriageStatus = 'MARRIED';
+                  spouse.spouseId = playerCharacter.id;
+                }
+
+                alert('おめでとうございます！結婚しました！');
+              }
               setLastTurnResult(prev => prev ? { ...prev, marriageProposal: undefined } : null);
             }}
             onRejectMarriage={() => {
@@ -370,7 +382,20 @@ function App() {
                 teammates={teamMembers}
                 onActivityComplete={(result: ActivityResult) => {
                   console.log('Activity completed:', result);
-                  // TODO: プレイヤーステータス更新
+                  // プレイヤーステータス更新
+                  if (playerCharacter) {
+                    // スタミナ変化を適用
+                    if (result.staminaChange) {
+                      playerCharacter.stamina.current = Math.max(0, Math.min(
+                        playerCharacter.stamina.max,
+                        playerCharacter.stamina.current + result.staminaChange
+                      ));
+                    }
+                    // ロイヤルティ変化を適用
+                    if (result.loyaltyChange) {
+                      playerCharacter.loyalty = Math.max(0, Math.min(100, playerCharacter.loyalty + result.loyaltyChange));
+                    }
+                  }
                 }}
               />
             </div>
@@ -426,7 +451,10 @@ function App() {
             companies={worldState.companies}
             onSelectCharacter={(character) => {
               console.log('Selected character:', character);
-              // TODO: キャラクター詳細表示
+              // キャラクター詳細表示（簡易版：アラート）
+              const skills = Object.entries(character.statsBlue)
+                .map(([k, v]) => `${k}: ${v}`).join(', ');
+              alert(`${character.name}\n\n役職: ${character.position.title}\nスキル: ${skills}`);
             }}
             onBack={() => setPhase('DASHBOARD')}
           />
@@ -540,7 +568,18 @@ function App() {
             }}
             onPlayerUpdate={(updatedPlayer) => {
               console.log('Player updated:', updatedPlayer);
-              // TODO: プレイヤーステータス更新
+              // プレイヤーステータス更新をGameStoreに反映
+              if (worldState) {
+                const playerIndex = worldState.npcs.findIndex(n => n.id === updatedPlayer.id);
+                if (playerIndex >= 0) {
+                  worldState.npcs[playerIndex] = updatedPlayer;
+                } else {
+                  const freelancerIndex = worldState.freelancers.findIndex(f => f.id === updatedPlayer.id);
+                  if (freelancerIndex >= 0) {
+                    worldState.freelancers[freelancerIndex] = updatedPlayer;
+                  }
+                }
+              }
             }}
           />
         );
