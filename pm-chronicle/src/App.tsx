@@ -179,40 +179,8 @@ function App() {
             playerCompany={playerCompany}
             activeProject={currentProject}
             onStartProject={() => {
-              // 案件選択画面へ遷移（仮プロジェクト作成を維持しつつ段階的移行）
-              // TODO: 将来的にはPROJECT_SELECT遷移に完全移行
-              // 現在は既存の動作を維持して安定性を確保
-              const mockProject: Project = {
-                id: 'proj-1',
-                name: 'ERPシステム刷新',
-                client: '大手製造業A社',
-                budget: { initial: 50000000, current: 50000000 },
-                schedule: { startWeek: 1, endWeek: 20, currentWeek: 1 },
-                evm: { pv: 0, ev: 0, ac: 0, spi: 1, cpi: 1 },
-                status: 'RUNNING',
-              };
-              setCurrentProject(mockProject);
-
-              // リアルなウォーターフォールスケジュール
-              setCurrentTasks([
-                { id: 't1', projectId: 'proj-1', name: '要件定義', assigneeId: null, phase: 'REQUIREMENT', progress: 0, quality: 80, riskFactor: 20, dependencies: [], isCriticalPath: true, startWeek: 1, endWeek: 4, estimatedWeeks: 4 },
-                { id: 't2', projectId: 'proj-1', name: '基本設計', assigneeId: null, phase: 'DESIGN', progress: 0, quality: 80, riskFactor: 30, dependencies: ['t1'], isCriticalPath: true, startWeek: 5, endWeek: 8, estimatedWeeks: 4 },
-                { id: 't3', projectId: 'proj-1', name: '詳細設計', assigneeId: null, phase: 'DESIGN', progress: 0, quality: 80, riskFactor: 25, dependencies: ['t2'], isCriticalPath: false, startWeek: 9, endWeek: 11, estimatedWeeks: 3 },
-                { id: 't4', projectId: 'proj-1', name: '開発', assigneeId: null, phase: 'DEVELOP', progress: 0, quality: 80, riskFactor: 40, dependencies: ['t3'], isCriticalPath: true, startWeek: 12, endWeek: 17, estimatedWeeks: 6 },
-                { id: 't5', projectId: 'proj-1', name: 'テスト', assigneeId: null, phase: 'TEST', progress: 0, quality: 80, riskFactor: 35, dependencies: ['t4'], isCriticalPath: true, startWeek: 18, endWeek: 20, estimatedWeeks: 3 },
-              ]);
-
-              // チームメンバー（プレイヤー + NPCから選択）
-              // 新人〜中堅はプレイヤー自身も開発担当として参加
-              const otherMembers = worldState.npcs.slice(0, 4);
-              if (playerCharacter) {
-                // プレイヤーを先頭に配置（自分自身をアサイン可能に）
-                setTeamMembers([playerCharacter, ...otherMembers]);
-              } else {
-                setTeamMembers(otherMembers);
-              }
-
-              setPhase('PM_COCKPIT');
+              // 案件選択画面へ遷移
+              setPhase('PROJECT_SELECT');
             }}
             onOpenCareer={() => setPhase('CAREER')}
             onOpenIndustryMap={() => setPhase('INDUSTRY_MAP')}
