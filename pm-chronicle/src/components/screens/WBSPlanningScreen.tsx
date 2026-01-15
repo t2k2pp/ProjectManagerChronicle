@@ -92,18 +92,102 @@ export function WBSPlanningScreen({
         setTasks(tasks.filter(t => t.id !== taskId));
     };
 
-    // クリティカルパス計算
+    // クリティカルパス計算（PMBOK準拠：最長経路法）
     const criticalPath = useMemo(() => {
-        // 各フェーズの最初のタスクをクリティカルパスとする（簡易版）
-        const cp: string[] = [];
-        for (const phase of PHASES) {
-            const phaseTasks = tasks.filter(t => t.phase === phase.key);
-            if (phaseTasks.length > 0) {
-                cp.push(phaseTasks[0].id);
+        if (tasks.length === 0) return [];
+
+        // 1. フェーズ間の暗黙的な依存関係を構築
+        // REQUIREMENT -> DESIGN -> DEVELOP -> TEST
+        const phaseOrder: TaskPhase[] = ['REQUIREMENT', 'DESIGN', 'DEVELOP', 'TEST'];
+
+        // 2. タスクの早期開始時刻 (ES) と早期終了時刻 (EF) を計算
+        const taskData: Map<string, {
+            es: number;  // Early Start
+            ef: number;  // Early Finish
+            ls: number;  // Late Start
+            lf: number;  // Late Finish
+            slack: number;  // スラック（余裕）
+        }> = new Map();
+
+        // フェーズでグループ化
+        const tasksByPhase: Map<TaskPhase, Task[]> = new Map();
+        for (const phase of phaseOrder) {
+            tasksByPhase.set(phase, tasks.filter(t => t.phase === phase));
+        }
+
+        // 前進パス（Early Start, Early Finish計算）
+        let currentStart = 0;
+        for (const phase of phaseOrder) {
+            const phaseTasks = tasksByPhase.get(phase) || [];
+            let maxEndInPhase = currentStart;
+
+            for (const task of phaseTasks) {
+                const duration = task.estimatedWeeks || phaseWeeks[phase] / Math.max(1, phaseTasks.length);
+                const es = currentStart;
+                const ef = es + duration;
+
+                taskData.set(task.id, {
+                    es, ef,
+                    ls: 0, lf: 0, slack: 0
+                });
+
+                maxEndInPhase = Math.max(maxEndInPhase, ef);
+            }
+
+            currentStart = maxEndInPhase;
+        }
+
+        // プロジェクト終了時刻
+        const projectEnd = currentStart;
+
+        // 後退パス（Late Start, Late Finish計算）
+        let currentEnd = projectEnd;
+        for (let i = phaseOrder.length - 1; i >= 0; i--) {
+            const phase = phaseOrder[i];
+            const phaseTasks = tasksByPhase.get(phase) || [];
+            let minStartInPhase = currentEnd;
+
+            for (const task of phaseTasks) {
+                const data = taskData.get(task.id);
+                if (!data) continue;
+
+                const duration = data.ef - data.es;
+                const lf = currentEnd;
+                const ls = lf - duration;
+                const slack = ls - data.es;
+
+                taskData.set(task.id, { ...data, ls, lf, slack });
+                minStartInPhase = Math.min(minStartInPhase, ls);
+            }
+
+            currentEnd = minStartInPhase;
+        }
+
+        // 3. スラックが0のタスクがクリティカルパス
+        const criticalTasks: string[] = [];
+        for (const [taskId, data] of taskData) {
+            // スラックが0または非常に小さいタスクをクリティカルパスとする
+            if (Math.abs(data.slack) < 0.01) {
+                criticalTasks.push(taskId);
             }
         }
-        return cp;
-    }, [tasks]);
+
+        // 4. クリティカルパスが空の場合、各フェーズの最長タスクを選択
+        if (criticalTasks.length === 0) {
+            for (const phase of phaseOrder) {
+                const phaseTasks = tasksByPhase.get(phase) || [];
+                if (phaseTasks.length > 0) {
+                    // 期間が最長のタスクを選択
+                    const longestTask = phaseTasks.reduce((longest, t) =>
+                        (t.estimatedWeeks || 1) > (longest.estimatedWeeks || 1) ? t : longest
+                        , phaseTasks[0]);
+                    criticalTasks.push(longestTask.id);
+                }
+            }
+        }
+
+        return criticalTasks;
+    }, [tasks, phaseWeeks]);
 
     // 計画確定
     const handleConfirm = () => {

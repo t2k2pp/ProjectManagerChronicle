@@ -123,13 +123,35 @@ export function calculatePVFromTasks(
     currentWeek: number,
     taskValue: number = 100000
 ): number {
-    // 各タスクの計画進捗を累計
-    // 簡略化：今週までに完了予定のタスク数 × タスク価値
-    const plannedCompleteTasks = tasks.filter(
-        t => !t.isCriticalPath || currentWeek >= 4 // 仮のロジック
-    ).length;
+    /**
+     * PMBOK準拠のPV計算:
+     * 各タスクについて、現在週時点での計画完了率を計算し、
+     * その計画完了率 × タスク価値の合計を返す
+     */
+    return tasks.reduce((total, task) => {
+        const startWeek = task.startWeek ?? 1;
+        const endWeek = task.endWeek ?? (startWeek + (task.estimatedWeeks ?? 4));
+        const duration = Math.max(1, endWeek - startWeek + 1);
 
-    return plannedCompleteTasks * taskValue * (currentWeek / 10);
+        let plannedProgress: number;
+
+        if (currentWeek < startWeek) {
+            // タスク開始前
+            plannedProgress = 0;
+        } else if (currentWeek >= endWeek) {
+            // タスク完了予定週を過ぎている
+            plannedProgress = 100;
+        } else {
+            // タスク進行中：線形で進捗する想定
+            const weeksElapsed = currentWeek - startWeek + 1;
+            plannedProgress = (weeksElapsed / duration) * 100;
+        }
+
+        // クリティカルパスタスクは価値にボーナス（重要度反映）
+        const adjustedValue = task.isCriticalPath ? taskValue * 1.2 : taskValue;
+
+        return total + (plannedProgress / 100) * adjustedValue;
+    }, 0);
 }
 
 /** タスク群からEV（出来高）を計算 */

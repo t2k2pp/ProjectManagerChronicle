@@ -8,6 +8,7 @@ import type { NegotiationCard } from './cardData';
 import { BASE_CARDS } from './cardData';
 import { CardHand } from './CardComponent';
 import { Button, ProgressBar } from '../../common';
+import { aiService } from '../../../services';
 
 interface BattleParticipant {
     name: string;
@@ -68,28 +69,91 @@ export function BattleField({
         setIsNegotiating(true);
     };
 
-    /** 直談判の送信（モック実装） */
-    const submitNegotiation = () => {
-        setIsNegotiating(false);
+    /** 直談判の送信（AI判定実装） */
+    const submitNegotiation = async () => {
         setLog(l => [...l, `あなた: 「${negotiationText}」`]);
+        setLog(l => [...l, '⏳ AI判定中...']);
 
-        // AI判定のシミュレーション（本来はaiServiceを呼ぶ）
-        const score = Math.floor(Math.random() * 40) + 60; // 60-100点
+        try {
+            // 交渉コンテキストを構築
+            const context = `プロジェクトマネージャーと${opponent.name}の交渉。相手を説得して合意を取り付ける必要がある。`;
 
-        if (score >= 80) {
-             const damage = 15;
-             setOpponent(o => ({ ...o, hp: Math.max(0, o.hp - damage) }));
-             setLog(l => [...l, `AI判定: GREAT! (${score}点) - 相手は深く納得した！(${damage}ダメージ)`]);
-        } else {
-             const damage = 5;
-             setOpponent(o => ({ ...o, hp: Math.max(0, o.hp - damage) }));
-             setLog(l => [...l, `AI判定: GOOD (${score}点) - 相手は少し納得した。(${damage}ダメージ)`]);
+            // AIサービスで判定
+            const aiResult = await aiService.judgeNegotiation(negotiationText, context);
+
+            let score: number;
+            let feedback: string;
+
+            if (aiResult.success && aiResult.score !== undefined) {
+                score = aiResult.score;
+                feedback = aiResult.feedback || '判定完了';
+            } else {
+                // AI接続失敗時はローカル評価
+                score = evaluateLocallyWithRules(negotiationText);
+                feedback = 'ローカル評価で判定しました';
+            }
+
+            // スコアに応じた効果
+            setIsNegotiating(false);
+            if (score >= 80) {
+                const damage = 15;
+                setOpponent(o => ({ ...o, hp: Math.max(0, o.hp - damage) }));
+                setLog(l => [...l, `✨ AI判定: GREAT! (${score}点) - ${feedback} (${damage}ダメージ)`]);
+            } else if (score >= 60) {
+                const damage = 8;
+                setOpponent(o => ({ ...o, hp: Math.max(0, o.hp - damage) }));
+                setLog(l => [...l, `✅ AI判定: GOOD (${score}点) - ${feedback} (${damage}ダメージ)`]);
+            } else {
+                const damage = 3;
+                setOpponent(o => ({ ...o, hp: Math.max(0, o.hp - damage) }));
+                setLog(l => [...l, `⚠️ AI判定: WEAK (${score}点) - ${feedback} (${damage}ダメージ)`]);
+            }
+
+            setNegotiationText('');
+            // 勝敗判定
+            if (opponent.hp <= 0) {
+                setLog(l => [...l, '交渉成立！勝利！']);
+                setTimeout(() => onBattleEnd('WIN'), 1500);
+                return;
+            }
+            // 相手ターンへ
+            setIsPlayerTurn(false);
+            setTimeout(opponentTurn, 1000);
+        } catch (error) {
+            // エラー時はローカル評価にフォールバック
+            setIsNegotiating(false);
+            const score = evaluateLocallyWithRules(negotiationText);
+            const damage = score >= 60 ? 8 : 3;
+            setOpponent(o => ({ ...o, hp: Math.max(0, o.hp - damage) }));
+            setLog(l => [...l, `📊 ローカル判定: ${score}点 (${damage}ダメージ)`]);
+            setNegotiationText('');
+            setIsPlayerTurn(false);
+            setTimeout(opponentTurn, 1000);
         }
+    };
 
-        setNegotiationText('');
-        // 相手ターンへ
-        setIsPlayerTurn(false);
-        setTimeout(opponentTurn, 1000);
+    /** ローカル評価（AI接続失敗時のフォールバック） */
+    const evaluateLocallyWithRules = (text: string): number => {
+        let score = 40;
+
+        // 論理性: 理由や根拠を含む
+        if (/なぜなら|理由|根拠|データ|実績|結果/.test(text)) score += 15;
+
+        // 説得力: 具体的な数字やメリット提示
+        if (/\d+/.test(text)) score += 10;
+        if (/メリット|効果|改善|向上/.test(text)) score += 10;
+
+        // 礼節: 丁寧な表現
+        if (/お願い|ご検討|ありがとう|恐れ入り|恐縮/.test(text)) score += 10;
+
+        // 創造性: 代替案や妥協案の提示
+        if (/代わりに|その代わり|別の方法|提案|案/.test(text)) score += 10;
+
+        // 長さボーナス
+        if (text.length > 50) score += 5;
+        if (text.length > 100) score += 5;
+
+        return Math.min(100, Math.max(0, score));
     };
 
     /** カードをプレイ */
