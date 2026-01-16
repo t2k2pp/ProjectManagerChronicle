@@ -16,6 +16,7 @@ import { ActivitySelector } from './components/game/ActivitySelector';
 import { EventDialog } from './components/game/EventDialog';
 import { BattleField } from './components/game/CardBattle';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
+import { generateProposals } from './lib/proposal';
 import { checkProjectCompletion as checkTasksComplete } from './lib/projectScore';
 import { checkRandomEvent, applyEventEffect, type ProjectEvent } from './lib/projectEvents';
 import { processTurn, checkProjectFailure, type ProjectPolicy, type TurnResult } from './lib/engine/turnProcessor';
@@ -476,26 +477,11 @@ function App() {
         if (!worldState || !playerCharacter) {
           return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
         }
-        // 仮の案件データを生成
-        const mockProposals = worldState.companies.slice(0, 3).map((company, index) => ({
-          id: `proposal-${index + 1}`,
-          name: ['基幹システム刷新', 'ECサイト構築', 'AI導入支援'][index],
-          client: company,
-          description: '案件の詳細説明',
-          difficulty: (['EASY', 'NORMAL', 'HARD'] as const)[index],
-          estimatedBudget: { min: 1000 + index * 500, max: 2000 + index * 1000 },
-          estimatedDuration: { min: 8 + index * 4, max: 16 + index * 8 },
-          requiredSkills: ['Java', 'SQL'],
-          requiredPhases: ['REQUIREMENT', 'DESIGN', 'DEVELOP', 'TEST'] as ('REQUIREMENT' | 'DESIGN' | 'DEVELOP' | 'TEST')[],
-          deadline: worldState.currentWeek + 4,
-          competitors: [],
-          status: 'AVAILABLE' as const,
-          createdWeek: worldState.currentWeek,
-          tags: [],
-        }));
+        // 案件データを動的に生成（設計書準拠）
+        const proposals = generateProposals(worldState.companies, worldState.currentWeek, 5);
         return (
           <ProposalScreen
-            proposals={mockProposals}
+            proposals={proposals}
             playerReputation={playerCompany?.reputation || 50}
             currentWeek={worldState.currentWeek}
             onBidWon={(proposal, estimate) => {
