@@ -15,6 +15,8 @@ import {
 import { ActivitySelector } from './components/game/ActivitySelector';
 import { EventDialog } from './components/game/EventDialog';
 import { BattleField } from './components/game/CardBattle';
+import { AwakeningEventsHandler } from './components/game/AwakeningEventModal';
+import { BidBattle } from './components/game/BidBattle';
 import { generateInitialWorld, createPlayerCharacter } from './lib/generators';
 import { generateProposals } from './lib/proposal';
 import { checkProjectCompletion as checkTasksComplete } from './lib/projectScore';
@@ -63,6 +65,9 @@ function App() {
   // 案件選択後の一時保持データ（WBS計画用）
   const [pendingProposal, setPendingProposal] = useState<Proposal | null>(null);
   const [pendingEstimate, setPendingEstimate] = useState<Estimate | null>(null);
+
+  // 覚醒イベント表示用
+  const [pendingAwakeningEvents, setPendingAwakeningEvents] = useState<TurnResult['awakeningEvents']>([]);
 
   // アプリ起動時にAI設定を読み込み
   useEffect(() => {
@@ -220,6 +225,11 @@ function App() {
               );
 
               setLastTurnResult(turnResult);
+
+              // 覚醒イベントがあればモーダル表示用に保持
+              if (turnResult.awakeningEvents && turnResult.awakeningEvents.length > 0) {
+                setPendingAwakeningEvents(turnResult.awakeningEvents);
+              }
 
               // ワールド状態更新（年・週が進む）
               // Note: processTurnは内部でworldStateを変更している
@@ -491,6 +501,11 @@ function App() {
               setPendingEstimate(estimate);
               setPhase('WBS_PLANNING');
             }}
+            onStartBidBattle={(proposal) => {
+              // 入札バトル3フェーズへ遷移
+              setPendingProposal(proposal);
+              setPhase('BIDDING');
+            }}
             onBack={() => setPhase('DASHBOARD')}
           />
         );
@@ -566,6 +581,45 @@ function App() {
                   }
                 }
               }
+            }}
+          />
+        );
+
+      case 'BIDDING':
+        // 入札バトル3フェーズ（太閤立志伝7.1準拠）
+        if (!pendingProposal || !playerCharacter) {
+          return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+        }
+        return (
+          <BidBattle
+            proposal={pendingProposal}
+            player={playerCharacter}
+            competitors={[
+              { name: '競合A社', strength: 60 },
+              { name: '競合B社', strength: 50 },
+            ]}
+            onComplete={(result) => {
+              if (result.won && pendingProposal) {
+                // 勝利: WBS計画へ
+                const winEstimate = {
+                  proposalId: pendingProposal.id,
+                  budget: (pendingProposal.estimatedBudget.min + pendingProposal.estimatedBudget.max) / 2,
+                  duration: (pendingProposal.estimatedDuration.min + pendingProposal.estimatedDuration.max) / 2,
+                  teamSize: 3,
+                  confidence: Math.round(result.score),
+                };
+                setPendingEstimate(winEstimate);
+                setPhase('WBS_PLANNING');
+              } else {
+                // 敗北: ダッシュボードへ
+                setPendingProposal(null);
+                alert(result.feedback);
+                setPhase('DASHBOARD');
+              }
+            }}
+            onCancel={() => {
+              setPendingProposal(null);
+              setPhase('PROJECT_SELECT');
             }}
           />
         );
@@ -653,6 +707,13 @@ function App() {
           onAccept={handleEventAccept}
           onReject={handleEventReject}
           onNegotiate={currentEvent.options.negotiate ? handleEventNegotiate : undefined}
+        />
+      )}
+      {/* 二つ名開眼演出モーダル */}
+      {pendingAwakeningEvents && pendingAwakeningEvents.length > 0 && (
+        <AwakeningEventsHandler
+          events={pendingAwakeningEvents}
+          onComplete={() => setPendingAwakeningEvents([])}
         />
       )}
     </>

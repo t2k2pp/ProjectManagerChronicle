@@ -14,6 +14,7 @@ interface ProposalScreenProps {
     playerReputation: number;
     currentWeek: number;
     onBidWon: (proposal: Proposal, estimate: Estimate) => void;
+    onStartBidBattle?: (proposal: Proposal) => void; // 入札バトル3フェーズへ遷移
     onBack: () => void;
 }
 
@@ -22,6 +23,7 @@ export function ProposalScreen({
     playerReputation,
     currentWeek,
     onBidWon,
+    onStartBidBattle,
     onBack,
 }: ProposalScreenProps) {
     const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
@@ -111,8 +113,8 @@ export function ProposalScreen({
                                 key={proposal.id}
                                 onClick={() => handleSelectProposal(proposal)}
                                 className={`w-full text-left p-4 rounded-lg border transition-all ${selectedProposal?.id === proposal.id
-                                        ? 'border-blue-500 bg-blue-500/20'
-                                        : 'border-gray-700 bg-gray-800 hover:bg-gray-700'
+                                    ? 'border-blue-500 bg-blue-500/20'
+                                    : 'border-gray-700 bg-gray-800 hover:bg-gray-700'
                                     }`}
                             >
                                 <div className="flex justify-between items-start mb-2">
@@ -223,8 +225,20 @@ export function ProposalScreen({
                                     disabled={isBidding || bidResult !== null}
                                     className="w-full"
                                 >
-                                    {isBidding ? '入札中...' : '入札する'}
+                                    {isBidding ? '入札中...' : '入札する（簡易モード）'}
                                 </Button>
+
+                                {/* 大型案件では入札バトルモード */}
+                                {onStartBidBattle && (selectedProposal.difficulty === 'HARD' || selectedProposal.difficulty === 'EXTREME') && !bidResult && (
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => onStartBidBattle(selectedProposal)}
+                                        disabled={isBidding}
+                                        className="w-full mt-3"
+                                    >
+                                        ⚔️ 入札バトルに挑む（3フェーズ）
+                                    </Button>
+                                )}
                             </Card>
 
                             {/* 入札結果 */}

@@ -9,6 +9,7 @@ import { simulateWorldWeek, applyYearlySimulationResult } from '../simulation/wo
 import { getEventsForYear } from '../events/historicalEvents';
 import { getProgressModifier, getQualityModifier, getRiskModifier, AGE_TYPES } from '../traits';
 import { checkMarriageEvent } from './marriageSystem';
+import { processAwakeningEvents, type AwakeningResult } from './awakeningSystem';
 
 /** ターン処理結果 */
 export interface TurnResult {
@@ -22,6 +23,8 @@ export interface TurnResult {
         partnerId: string;
         message: string;
     };
+    /** 覚醒イベント（二つ名開眼） */
+    awakeningEvents?: (AwakeningResult & { character?: Character })[];
 }
 
 /** プロジェクト更新情報 */
@@ -152,6 +155,23 @@ export function processTurn(
         for (const event of historicalEvents) {
             result.events.push(`【${event.name}】${event.description}`);
             result.newEvents.push(event.id);
+        }
+
+        // 覚醒イベントチェック（プレイヤーのプロジェクト成功を含む場合は空配列を渡す）
+        const awakeningResults = processAwakeningEvents(
+            [...worldState.npcs, ...worldState.freelancers],
+            [], // completedProjects - 別途管理が必要
+            worldState.seed + year
+        );
+        if (awakeningResults.length > 0) {
+            result.awakeningEvents = awakeningResults.map(ar => {
+                const char = [...worldState.npcs, ...worldState.freelancers].find(c => c.id === ar.characterId);
+                return { ...ar, character: char };
+            });
+            for (const ar of awakeningResults) {
+                const char = [...worldState.npcs, ...worldState.freelancers].find(c => c.id === ar.characterId);
+                result.events.push(`✨ ${char?.name || 'キャラクター'} が覚醒！二つ名「${ar.trueName}」を獲得！`);
+            }
         }
 
         // 年次シミュレーション結果をWorldStateに反映

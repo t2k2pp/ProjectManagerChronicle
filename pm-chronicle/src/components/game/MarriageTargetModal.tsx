@@ -14,7 +14,8 @@ export function MarriageTargetModal({
     partner,
     onAccept,
     onReject,
-    onClose
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onClose: _onClose
 }: MarriageTargetModalProps) {
     if (!isOpen) return null;
 
